@@ -19,6 +19,7 @@ app.get('/', function (request, response) {
 
 
 var universe = [];
+var timers = [];
 const rows = 15,
     cols = 7;
 var colors = ["red", "blue", "green", "purple"];
@@ -28,6 +29,7 @@ server.on('connection', (socket) => {
     socket.emit('handshake', sid);
 
     socket.on('disconnect', () => {
+        universe[sid]=null;
         console.log('[disconnect]', sid);
 
     });
@@ -42,7 +44,7 @@ server.on('connection', (socket) => {
 
 //Eden start the game
     socket.on('eden', () => {
-        var intervalId = setInterval(() => {
+        timers[sid] = setInterval(() => {
             revelation(socket, sid)
         }, 1000); //tell you the world
     })
@@ -54,6 +56,16 @@ server.on('connection', (socket) => {
         console.log("Received Pray")
 
         universe[sid].hearPray(msg);
+    })
+
+
+    socket.on('apocalypse', (msg) => {
+
+        console.log("Received Doom Day! "+sid+" Losed")
+
+        universe[sid]=null;
+        clearInterval(timers[sid])
+
     })
 
 });

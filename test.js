@@ -29,4 +29,6 @@ pray.on('eden',(universe)=>{
         depth: 2
     }
     pray.emit('pray',eden)
+    pray.emit('apocalypse')
 })
+
