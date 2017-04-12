@@ -54,7 +54,7 @@ for(var i=0;i<numColumns;i++){
 // Sets up the world and draws objects on canvas
 function main() {
     // socket.io
-    socket = io('https://drillergod.herokuapp.com');
+    socket = io('localhost:5000');
     bindSocketListener(socket);
 
     // adding listeners to control driller
