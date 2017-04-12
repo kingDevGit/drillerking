@@ -12,6 +12,30 @@ var Blocks = function(){}
 // Given a position and a type of block, recursively finds a connected group of
 // blocks of that type starting at that position.
 // Returns an array of points, with a point for each block in the group""
+
+function Block(type, state) {
+    var countdownFactor = 6;
+
+    //string describing the content of the block
+    this.type = type;
+    //number of drills until the block is destroyed
+    //if the block is a durable block
+    this.health = 3;
+
+    if (state === undefined) {
+        state = "stationary";
+    }
+    this.state = state;
+    this.countdown = countdownFactor;
+
+    // Pixel offsets used for animations
+    this.xOffset = 0;
+    this.yOffset = 0;
+
+
+}
+
+
 Blocks.prototype.getBlockGroup=function(blocks, x, y, blockType) {
     var checkTable = {};
     var groupList = [];
@@ -167,7 +191,7 @@ Blocks.prototype.blockGravityMove=function(blocks, checkedGrid) {
                 // If the block was falling, it has the potential to fall into a
                 // group causing that group to become of size >= to 4
                 if (blocks[x][y].state === "falling") {
-                    var group = getBlockGroup(blocks, x, y, blocks[x][y].type);
+                    var group = this.getBlockGroup(blocks, x, y, blocks[x][y].type);
                     // If the group size is >= 4, delete the group
                     // TODO increase player score?
                     if (group.length >= 4) {
@@ -228,9 +252,9 @@ Blocks.prototype.blockGravityMove=function(blocks, checkedGrid) {
         // group, so compare types and only proceed if unequal.
         else if (canFall && checkedGrid[p.x][p.y-1] === "unchecked"
                 && blocks[p.x][p.y].type !== blocks[p.x][p.y-1]) {
-            checkedGrid = groupFalls(blocks,
+            checkedGrid = this.groupFalls(blocks,
                                      checkedGrid,
-                                     getBlockGroup(blocks, p.x, p.y-1,
+                                     this.getBlockGroup(blocks, p.x, p.y-1,
                                                    blocks[p.x][p.y-1].type));
 
             // At this point, we should have recursively looked below until the
