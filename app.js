@@ -9,7 +9,8 @@ var server = io.listen(serv)
 var Blocks = require('./blocks')
 
 app.set('port', (process.env.PORT || 5000));
-
+app.set('view engine', 'ejs');
+app.use(express.static(__dirname + '/public'));
 
 app.get('/', function (request, response) {
     var result = 'noob noob driller online'
@@ -46,7 +47,7 @@ server.on('connection', (socket) => {
     socket.on('eden', () => {
         timers[sid] = setInterval(() => {
             revelation(socket, sid)
-        }, 1000); //tell you the world
+        }, 50); //tell you the world
     })
 
 
@@ -58,12 +59,21 @@ server.on('connection', (socket) => {
         universe[sid].hearPray(msg);
     })
 
+    socket.on('drill', (msg) => {
+
+    universe[sid].drill(msg.toDrill,msg.pos,socket);
+
+
+
+    })
+
+
 
     socket.on('apocalypse', (msg) => {
 
         console.log("Received Doom Day! "+sid+" Losed")
 
-        universe[sid]=null;
+       // universe[sid]=null;
         clearInterval(timers[sid])
 
     })
@@ -85,7 +95,9 @@ function world(sid) {
         row: 5,
         column: 3,
         countdown: 4,
-        depth: 2
+        depth: 2,
+        score:0,
+        air:100
     }
 
 
@@ -93,6 +105,34 @@ function world(sid) {
         this.blocks.push([]); // add second dimensional arrays to each index
 
     }
+
+    this.drill = function(toDrill,pos,socket){
+
+        // Checks if the thing we are drilling is a drillable block.
+        // Everything in colors can be drilled.
+        if (canDrill(toDrill)) {
+            // Get the group of blocks to be drilled
+            let drillGroup = Blocks.getBlockGroup(this.blocks,
+                pos[0], pos[1], toDrill.type);
+
+            // Drill that group of blocks
+            drillGroup.forEach( (point)=> {
+                this.blocks[point.x][point.y] = new Block("empty");
+                this.adam.score+=1;
+            });
+        }else if(toDrill.type==="durable"){
+            toDrill.health--;
+            this.blocks[pos[0]][pos[1]] = toDrill;
+            if(toDrill.health===0){
+                this.blocks[pos[0]][pos[1]] = new Block("empty");
+
+                socket.emit('noob');
+            }
+        }
+
+
+    }
+
 
     this.resetCountdown = function () {
         this.adam.countdown = 4;
@@ -116,9 +156,9 @@ function world(sid) {
 
     this.hearPray = function (universe) {
         this.blocks = universe.blocks;
-        this.adams = universe.adams;
+        this.adam = universe.adam;
         this.gravity();
-        console.log("Received Pray, Move!")
+        console.log("Received Pray!", this.adam)
     }
 
 
@@ -128,6 +168,7 @@ function world(sid) {
         //check if the driller should fall
         if (this.blocks[driller.column][driller.row - 1].type === "empty" ||
             this.blocks[driller.column][driller.row - 1].type === "air") {
+            console.log("Should Fall")
             if (driller.countdown === 0) {
                 console.log("Fuckking add blocks")
                 this.addBottomBlocks(1, .015,
@@ -231,8 +272,20 @@ function Block(type, state) {
     // Pixel offsets used for animations
     this.xOffset = 0;
     this.yOffset = 0;
+    this.changeState = function (newState) {
+        if (newState === "shaking") {
+        this.countdown = countdownFactor + 2;
+    } else {
+        this.countdown = countdownFactor;
+    }
+    this.state = newState;
+}
+
+}
 
 
+function canDrill(block) {
+    return (colors.indexOf(block.type) > -1);
 }
 
 function build(sid) {

@@ -1,4 +1,3 @@
-"use strict";
 // Contains block functions, but no global variables
 
 // Block object
@@ -7,20 +6,14 @@
 //   stationary
 //   shaking
 //   falling
-
-var Blocks = function(){}
-// Given a position and a type of block, recursively finds a connected group of
-// blocks of that type starting at that position.
-// Returns an array of points, with a point for each block in the group""
-
-function Block(type, state) {
+function Block(type, state){
     var countdownFactor = 6;
 
     //string describing the content of the block
     this.type = type;
     //number of drills until the block is destroyed
     //if the block is a durable block
-    this.health = 3;
+    this.health= 3;
 
     if (state === undefined) {
         state = "stationary";
@@ -32,20 +25,21 @@ function Block(type, state) {
     this.xOffset = 0;
     this.yOffset = 0;
 
-    this.changeState = function (newState) {
-        if (newState === "shaking") {
-            this.countdown = countdownFactor + 2;
-        } else {
-            this.countdown = countdownFactor;
-        }
-        this.state = newState;
-    }
-
 
 }
-
-
-Blocks.prototype.getBlockGroup=function(blocks, x, y, blockType) {
+ function changeState(block,newState) {
+        if (newState === "shaking") {
+            block.countdown = 6 + 2;
+        } else {
+            block.countdown = 6;
+        }
+        block.state = newState;
+        return block
+    }
+// Given a position and a type of block, recursively finds a connected group of
+// blocks of that type starting at that position.
+// Returns an array of points, with a point for each block in the group
+function getBlockGroup(blocks, x, y, blockType) {
     var checkTable = {};
     var groupList = [];
 
@@ -83,7 +77,7 @@ Blocks.prototype.getBlockGroup=function(blocks, x, y, blockType) {
     return getBlockGroupHelper(x, y, blockType);
 }
 
-Blocks.prototype.blockGravity=function(blocks) {
+function blockGravity(blocks) {
     // Checks if any of the groups of blocks should fall
     // Creates an array the size of our blocks array.
     // "unchecked" means the space hasn't been checked for falling yet
@@ -91,11 +85,11 @@ Blocks.prototype.blockGravity=function(blocks) {
     // "stays" means the space will not fall
     // This way, we don't repeatedly check different parts of the same group.
     var checkedGrid = [];
-
-    for (let i = 0; i < blocks.length; i++) {
+    var i;
+    for (i = 0; i < blocks.length; i++) {
         var inner = [];
-
-        for (let j=0; j < blocks[i].length; j++) {
+        var j;
+        for (j=0; j < blocks[i].length; j++) {
             inner.push("unchecked");
         }
         checkedGrid.push(inner);
@@ -107,39 +101,29 @@ Blocks.prototype.blockGravity=function(blocks) {
     // or if the blocks below will also fall, which means the whole column up
     // until that point will fall.
     // We need to start at the bottom so that multiple groups can fall in unison
-
-    for (let y=0; y<blocks[0].length; y++) {
-
-        for (let x=0; x<blocks.length; x++) {
+    var y;
+    for (y=0; y<blocks[0].length; y++) {
+        var x;
+        for (x=0; x<blocks.length; x++) {
             // Group the block is part of has not yet been checked.
             if (blocks[x][y].type === "empty")
                 checkedGrid[x][y] = "falls";
             else if (checkedGrid[x][y] === "unchecked") {
                 // The block will not be empty
-                var groupList = this.getBlockGroup(blocks, x, y, blocks[x][y].type);
+                var groupList = getBlockGroup(blocks, x, y, blocks[x][y].type);
 
                 // If the group can fall, add it to the list of falling
                 // groups, which we will move at the end of the block
                 // gravity loop.
                 // This adds the group to the checkedGrid
-                checkedGrid = (this.groupFalls(blocks, checkedGrid, groupList));
+                checkedGrid = (groupFalls(blocks, checkedGrid, groupList));
             }
         }
     }
 
-    blocks = this.blockGravityMove(blocks, checkedGrid);
+    blocks = blockGravityMove(blocks, checkedGrid);
     return {"statusGrid": checkedGrid, "blockGrid": blocks};
 }
-
-Blocks.prototype.changeState = function (block,newState) {
-        if (newState === "shaking") {
-            block.countdown = 6 + 2;
-        } else {
-            block.countdown = 6;
-        }
-        block.state = newState;
-        return block
-    }
 
 // Move all blocks that fall down by one.
 // If they are on the bottom and are falling, just forget about them. This
@@ -149,9 +133,9 @@ Blocks.prototype.changeState = function (block,newState) {
 // any further.
 // We start at the bottom and work our way up so we do not overwrite
 // anything.
-Blocks.prototype.blockGravityMove=function(blocks, checkedGrid) {
-    for (let y=1; y<blocks[0].length; y++) {
-        for(let x=0; x<blocks.length; x++) {
+function blockGravityMove(blocks, checkedGrid) {
+    for (y=1; y<blocks[0].length; y++) {
+        for(x=0; x<blocks.length; x++) {
             // Empty blocks only fall downwards if they are falling into a space
             // that will become empty.
             // TODO There might be a cleaner way to do this.
@@ -164,14 +148,11 @@ Blocks.prototype.blockGravityMove=function(blocks, checkedGrid) {
                 // The block is not an empty block
                 else {
                     if (blocks[x][y].state === "stationary") {
-
-                        this.changeState(  blocks[x][y],"shaking");
+                        blocks[x][y]=changeState(blocks[x][y],"shaking");
                     }
                     else if (blocks[x][y].state === "shaking") {
                         if (blocks[x][y].countdown === 0) {
-                            this.changeState(  blocks[x][y],"falling");
-
-
+                            blocks[x][y]=changeState(blocks[x][y],"falling");
                         } else {
                             blocks[x][y].countdown -= 1;
                         }
@@ -179,8 +160,7 @@ Blocks.prototype.blockGravityMove=function(blocks, checkedGrid) {
                     else if (blocks[x][y].state === "falling") {
                         if (blocks[x][y].countdown === 0) {
                             // call this to reset countdown
-                            this.changeState(  blocks[x][y],"falling");
-
+                            blocks[x][y]=changeState(blocks[x][y],"falling");
                             blocks[x][y-1] = blocks[x][y];
                             blocks[x][y] = new Block("empty");
                         } else {
@@ -200,7 +180,7 @@ Blocks.prototype.blockGravityMove=function(blocks, checkedGrid) {
                 // If the block was falling, it has the potential to fall into a
                 // group causing that group to become of size >= to 4
                 if (blocks[x][y].state === "falling") {
-                    var group = this.getBlockGroup(blocks, x, y, blocks[x][y].type);
+                    var group = getBlockGroup(blocks, x, y, blocks[x][y].type);
                     // If the group size is >= 4, delete the group
                     // TODO increase player score?
                     if (group.length >= 4) {
@@ -210,17 +190,12 @@ Blocks.prototype.blockGravityMove=function(blocks, checkedGrid) {
                     }
                     // Otherwise, the block just becomes stationary
                     else {
-
-
-
-                        this.changeState(  blocks[x][y],"stationary");
+                        blocks[x][y]=changeState(blocks[x][y],"stationary");
                     }
                 }
                 // Redundant possibly, but block becomes stationary
                 else {
-                  
-
-                   this.changeState(  blocks[x][y],"stationary");
+                    blocks[x][y]=changeState(blocks[x][y],"stationary");
                 }
             }
         }
@@ -232,10 +207,10 @@ Blocks.prototype.blockGravityMove=function(blocks, checkedGrid) {
 // Expects a valid block grouping.
 // Checks that every block in the group is capable of falling one square.
 // Returns true if that is the case.
- Blocks.prototype.groupFalls=function(blocks, checkedGrid, groupList) {
+function groupFalls(blocks, checkedGrid, groupList) {
     var canFall = true;
 
-    groupList.forEach( (p)=> {
+    groupList.forEach(function (p) {
         // Set the status to checking to avoid infinite recursion
         checkedGrid[p.x][p.y] = "checking";
 
@@ -261,9 +236,9 @@ Blocks.prototype.blockGravityMove=function(blocks, checkedGrid) {
         // group, so compare types and only proceed if unequal.
         else if (canFall && checkedGrid[p.x][p.y-1] === "unchecked"
                 && blocks[p.x][p.y].type !== blocks[p.x][p.y-1]) {
-            checkedGrid = this.groupFalls(blocks,
+            checkedGrid = groupFalls(blocks,
                                      checkedGrid,
-                                     this.getBlockGroup(blocks, p.x, p.y-1,
+                                     getBlockGroup(blocks, p.x, p.y-1,
                                                    blocks[p.x][p.y-1].type));
 
             // At this point, we should have recursively looked below until the
@@ -295,4 +270,3 @@ Blocks.prototype.blockGravityMove=function(blocks, checkedGrid) {
     // should not be unchecked or checking
     return checkedGrid;
 }
-module.exports = new Blocks();

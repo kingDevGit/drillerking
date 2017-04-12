@@ -2,11 +2,11 @@ let pray = require('socket.io-client')('http://localhost:5000');
 
 
 let eden = null
-pray.on('handshake',()=>{
+pray.on('handshake',()=>{   // Recieve handshake means server does connected you
     console.log('Handshake');
 
 
-    pray.emit('genesis',null)
+    pray.emit('genesis',null) //
 
 })
 
