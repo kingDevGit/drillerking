@@ -13,14 +13,15 @@ Before you ask,
 ***
 # Some Remarks 
 1. **Color Change**
-  * plum  --purple
-  * Khaki  -- yellow  (original green)
-  * LightCoral -- red
-  * LightCyan  -- light blue
+    * plum  --purple
+    * Khaki  -- yellow  (original green)
+    * LightCoral -- red
+    * LightCyan  -- light blue
   
   They are CSS color you can find the list in w3cSchool.
+  
 2. **Bitmap**
-  * Some static images are added into the scene
+    * Some static images are added into the scene
 [tutorial](http://createjs.com/docs/easeljs/classes/Bitmap.html)
 . 
 
@@ -40,8 +41,8 @@ and some basic setup
 
 4. **PreloadJs**
 [http://www.createjs.com/docs/preloadjs/modules/PreloadJS.html]
-  * Some images need to be reloaded.
-  * A new javascript file has been created
+    * Some images need to be reloaded.
+    * A new javascript file has been created
 
 
 
