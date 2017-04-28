@@ -1,3 +1,4 @@
+"use strict";
 var express = require('express');
 var app = express();
 
@@ -16,7 +17,7 @@ app.get('/', function (request, response) {
     var result = 'noob noob driller online'
     response.send(result);
 
-})
+});
 
 
 var universe = [];
@@ -98,10 +99,10 @@ function world(sid) {
         depth: 2,
         score:0,
         air:100
-    }
+    };
 
 
-    for (i = 0; i < cols; i++) {
+    for (let i = 0; i < cols; i++) {
         this.blocks.push([]); // add second dimensional arrays to each index
 
     }
@@ -144,6 +145,7 @@ function world(sid) {
                 // pushes a new item onto the beginning of the array
                 this.blocks[x].unshift(new Block("empty"));
             }
+
             if (this.blocks[x] != undefined) {
                 if (this.blocks[x].length > rows) {
                     this.blocks[x].pop();
