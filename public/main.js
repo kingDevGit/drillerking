@@ -25,11 +25,16 @@ var leftarrow = 37;
 var rightarrow = 39;
 var spacebar = 32;
 var rKey = 82;
+
 var inGame = false;
 var introScreen = true;
+
 var worldWidth = 420;
+
 var score = 0;
 var driller;
+var drillerSpriteSheet;
+
 var canvas = document.getElementById("myCanvas");
 var ctx = canvas.getContext("2d");
 var infoScreen = new Image();
@@ -57,18 +62,21 @@ function main() {
     socket = io('http://localhost:5000');
     bindSocketListener(socket);
 
-    // adding listeners to control driller
-    // Focusing canvas so it can register events
-    canvas.setAttribute('tabindex', '0');
-    canvas.focus();
-    canvas.addEventListener('keydown', onKeyDown, false);
-
-    stage = new createjs.Stage("myCanvas");
-
     intro();
 
-    createjs.Ticker.addEventListener("tick", onTimer);
+    // preload resources
+    preload_Resouces(function(){
+        // adding listeners to control driller
+        // Focusing canvas so it can register events
+        canvas.setAttribute('tabindex', '0');
+        canvas.focus();
+        canvas.addEventListener('keydown', onKeyDown, false);
 
+        stage = new createjs.Stage("myCanvas");
+        createjs.Ticker.addEventListener("tick", onTimer);
+
+        loadDrillerSprite();
+    });
 }
 
 function bindSocketListener(pray) {
@@ -427,9 +435,90 @@ function restartGame() {
 
 ///////// graphics and drawing stuff /////////
 
+function loadDrillerSprite(){
+    var data = {
+        images: [resources.getResult("drill")],
+        frames: {width:300, height:300},
+        animations: {
+            stand:2,
+            drill:[3,4,5],
+        },
+        framerate:5
+    };
+    var spriteSheet = new createjs.SpriteSheet(data);
+    drillerSpriteSheet = new createjs.Sprite(spriteSheet, "stand");
+    drillerSpriteSheet.gotoAndPlay("stand");
+    drillerSpriteSheet.scaleX = 50/300;
+    drillerSpriteSheet.scaleY = 50/300;
+}
+
+function drawDriller() {
+    //Mr.Driller's animation
+    drillerSpriteSheet.x = driller.column*60;
+    drillerSpriteSheet.y = canvas.height - driller.row*60;
+
+    // Draw Mr. Driller's drill
+    var drillOffset = 15;
+    if (driller.drillDirection === "down") {
+        var line = new createjs.Shape();
+        line.graphics.f("#E01B6A");
+        line.graphics.beginStroke("#E01B6A");
+        line.graphics.moveTo(driller.column * 60 + 25,
+            canvas.height - driller.row * 60 + 45);
+        line.graphics.lineTo(driller.column * 60 + 30,
+            canvas.height - driller.row * 60 + 60);
+        line.graphics.lineTo(driller.column * 60 + 35,
+            canvas.height - driller.row * 60 + 45);
+        line.graphics.endStroke();
+        stage.addChild(line);
+    }
+    else if (driller.drillDirection === "up") {
+        var line = new createjs.Shape();
+        line.graphics.f("#E01B6A");
+        line.graphics.beginStroke("#E01B6A");
+        line.graphics.moveTo(driller.column * 60 + 25,
+            canvas.height - driller.row * 60 + 15);
+        line.graphics.lineTo(driller.column * 60 + 30,
+            canvas.height - driller.row * 60);
+        line.graphics.lineTo(driller.column * 60 + 35,
+            canvas.height - driller.row * 60 + 15);
+        line.graphics.endStroke();
+        stage.addChild(line);
+    }
+    else if (driller.drillDirection === "left") {
+        var line = new createjs.Shape();
+        line.graphics.f("#E01B6A");
+        line.graphics.beginStroke("#E01B6A");
+        line.graphics.moveTo(driller.column * 60 + 15,
+            canvas.height - driller.row * 60 + 25);
+        line.graphics.lineTo(driller.column * 60,
+            canvas.height - driller.row * 60 + 30);
+        line.graphics.lineTo(driller.column * 60 + 15,
+            canvas.height - driller.row * 60 + 35);
+        line.graphics.endStroke();
+        stage.addChild(line);
+
+    }
+    else if (driller.drillDirection === "right") {
+        var line = new createjs.Shape();
+        line.graphics.f("#E01B6A");
+        line.graphics.beginStroke("#E01B6A");
+        line.graphics.moveTo(driller.column * 60 + 45,
+            canvas.height - driller.row * 60 + 25);
+        line.graphics.lineTo(driller.column * 60 + 60,
+            canvas.height - driller.row * 60 + 30);
+        line.graphics.lineTo(driller.column * 60 + 45,
+            canvas.height - driller.row * 60 + 35);
+        line.graphics.endStroke();
+        stage.addChild(line);
+    }
+
+    stage.addChild(drillerSpriteSheet);
+}
+
 function drawScoreboard(width, height) {
-    drawRectangle("black", 0, 0, worldWidth, canvas.height);
-    drawRectangle("black", canvas.width - width, 0, width, height);
+    //drawRectangle("black", 0, 0, worldWidth, canvas.height);
+    //drawRectangle("black", canvas.width - width, 0, width, height);
 
 
     drawRoundedRectangle("Khaki", canvas.width - width + 5,
@@ -477,78 +566,23 @@ function drawGameOver() {
     stage.update();
 }
 
-function drawDriller() {
-    //Mr.Driller's animation
-
-    // Draw Mr. Driller's drill
-    var drillOffset = 15;
-    if (driller.drillDirection === "down") {
-        var line = new createjs.Shape();
-        line.graphics.f("#E01B6A");
-        line.graphics.beginStroke("#E01B6A");
-        line.graphics.moveTo(driller.column * 60 + 25,
-            canvas.height - driller.row * 60 + 45);
-        line.graphics.lineTo(driller.column * 60 + 30,
-            canvas.height - driller.row * 60 + 60);
-        line.graphics.lineTo(driller.column * 60 + 35,
-            canvas.height - driller.row * 60 + 45);
-        line.graphics.endStroke();
-        stage.addChild(line);
-    }
-    else if (driller.drillDirection === "up") {
-        var line = new createjs.Shape();
-        line.graphics.f("#E01B6A");
-        line.graphics.beginStroke("#E01B6A");
-        line.graphics.moveTo(driller.column * 60 + 25,
-            canvas.height - driller.row * 60 + 15);
-        line.graphics.lineTo(driller.column * 60 + 30,
-            canvas.height - driller.row * 60);
-        line.graphics.lineTo(driller.column * 60 + 35,
-            canvas.height - driller.row * 60 + 15);
-        line.graphics.endStroke();
-        stage.addChild(line);
-    }
-    else if (driller.drillDirection === "left") {
-        var line = new createjs.Shape();
-        line.graphics.f("#E01B6A");
-        line.graphics.beginStroke("#E01B6A");
-        line.graphics.moveTo(driller.column * 60 + 15,
-            canvas.height - driller.row * 60 + 25);
-        line.graphics.lineTo(driller.column * 60,
-            canvas.height - driller.row * 60 + 30);
-        line.graphics.lineTo(driller.column * 60 + 15,
-            canvas.height - driller.row * 60 + 35);
-        line.graphics.endStroke();
-        stage.addChild(line);
-    }
-    else if (driller.drillDirection === "right") {
-        var line = new createjs.Shape();
-        line.graphics.f("#E01B6A");
-        line.graphics.beginStroke("#E01B6A");
-        line.graphics.moveTo(driller.column * 60 + 45,
-            canvas.height - driller.row * 60 + 25);
-        line.graphics.lineTo(driller.column * 60 + 60,
-            canvas.height - driller.row * 60 + 30);
-        line.graphics.lineTo(driller.column * 60 + 45,
-            canvas.height - driller.row * 60 + 35);
-        line.graphics.endStroke();
-        stage.addChild(line);
-        ctx.beginPath();
-    }
-}
-
 function drawWorld() {
     reset();
     drawBlocks();
     drawDriller();
 }
 
+function drawBackGround(){
+    var bgImg = resources.getResult("bg0");
+    addBitmap(bgImg,0,0,canvas.width,canvas.height);
+}
 
 // This is the drawing function that happens every time
 function drawDisplay() {
     if (window.introScreen) {
         drawIntroScreen();
     } else {
+        drawBackGround();
         drawScoreboard(canvas.width - worldWidth, canvas.height);
         drawWorld();
     }
@@ -599,7 +633,7 @@ function drawBlock(column, row, type) {
     }
 
     function drawAir() {
-        var color = "lightblue";
+        /*var color = "lightblue";
         var radius = 12;
         circle(color,
             column * 60 + (1.5 * radius) + blocks[column][row].xOffset,
@@ -614,7 +648,13 @@ function drawBlock(column, row, type) {
         circle(color,
             (column + 1) * 60 - (1.5 * radius) + blocks[column][row].xOffset,
             canvas.height - (row) * 60 + (1.5 * radius),
-            radius);
+            radius);*/
+
+        var chickenleg = resources.getResult("chickenleg");
+        addBitmap(chickenleg,
+            column * 60 + 5 + blocks[column][row].xOffset,
+            canvas.height - row * 60 + 5,
+            50,50);
     }
 
     function drawDurable(block) {
@@ -654,17 +694,17 @@ function drawBlock(column, row, type) {
     if (type === "empty")
         return;
     if (type === "blue") {
-        drawNormal("blue");
+        drawNormal("LightCyan");
 //        drawDurable();
     }
     else if (type === "green") {
-        drawNormal("green");
+        drawNormal("Khaki");
     }
     else if (type === "red") {
-        drawNormal("red");
+        drawNormal("LightCoral");
     }
     else if (type === "purple") {
-        drawNormal("purple");
+        drawNormal("plum");
     }
     // drawing air and durables should be different
     // they don't connect
@@ -711,6 +751,15 @@ function circle(ctx, cx, cy, radius) {
     circle.x = cx;
     circle.y = cy;
     stage.addChild(circle);
+}
+
+function addBitmap(img,x,y,width,height){
+    var bitmap = new createjs.Bitmap(img);
+    bitmap.x = x;
+    bitmap.y = y;
+    bitmap.scaleX = width/img.width;
+    bitmap.scaleY = height/img.height;
+    stage.addChild(bitmap);
 }
 
 function drawLine(x1, y1, x2, y2, stroke, color) {
