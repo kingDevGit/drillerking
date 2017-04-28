@@ -8,17 +8,16 @@ nothing but bullshit
 ### **28-April-2017**
 
 1. Color Change
-⋅⋅* plum  --purple
-⋅⋅* Khaki  -- yellow
-⋅⋅* LightCoral -- red
-⋅⋅* LightCyan  -- light blue
+  * plum  --purple
+  * Khaki  -- yellow
+  * LightCoral -- red
+  * LightCyan  -- light blue
 
 They are CSS color you can find the list in w3cSchool.
 
 
 2. Bitmap
-Some static images are added into the scene.
-
+Some static images are added into the scene
 [tutorial](http://createjs.com/docs/easeljs/classes/Bitmap.html)
 
 
