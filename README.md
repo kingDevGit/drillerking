@@ -9,16 +9,21 @@ nothing but bullshit
 
 1. Color Change
   * plum  --purple
-  * Khaki  -- yellow
+  * Khaki  -- yellow  (original green)
   * LightCoral -- red
   * LightCyan  -- light blue
 
-They are CSS color you can find the list in w3cSchool.
+  They are CSS color you can find the list in w3cSchool.
 
 
 2. Bitmap
-Some static images are added into the scene
+  * Some static images are added into the scene
 [tutorial](http://createjs.com/docs/easeljs/classes/Bitmap.html)
+
+   Some troubleshooting:
+[stackOverFlow1](http://stackoverflow.com/questions/20850634/easeljs-not-showing-bitmap/20860996#20860996)
+
+   The capsule need to change with chick thigh
 
 
 3. Animation (SpriteSheet)
@@ -28,6 +33,10 @@ and some basic setup
 [tutorial](http://www.createjs.com/tutorials/Animation%20and%20Ticker/)
 .
 
+4. PreloadJs
+[http://www.createjs.com/docs/preloadjs/modules/PreloadJS.html]
+  * Some images need to be reloaded.
+  * A new javascript file has been created
 
 
 
