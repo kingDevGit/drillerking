@@ -40,8 +40,8 @@ server.on('connection', (socket) => {
     //Create multi-player room
     socket.on('lonely', () => {
         console.log('[Create Room]', sid)
-        // let key = randomKey();
-        let key = "testkey"
+        let key = randomKey();
+       // let key = "testkey"
 
         room[key] = {
             adam: sid,
@@ -360,7 +360,7 @@ let randomKey = () => {
     let possible = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
     let i;
 
-    for (i = 0; i < 10; i++)
+    for (i = 0; i < 5; i++)
         text += possible.charAt(Math.floor(Math.random() * possible.length));
     return text;
 }
