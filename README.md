@@ -5,17 +5,17 @@ Before you ask,
 
 # Update Changes:
 ### **05-May-2017** By King
-1. Adding Multiplayer support
+Adding Multiplayer support
 Socket Command:
-*emit/on lonely 
-   emit: Create a room for dual mode.
-   on: return the room key
+1. *emit/on lonely 
+   *emit: Create a room for dual mode.
+   *on: return the room key.
    
-*emit/on women
-   emit: join a room with the room key
-   on: Receive when the room has two player ready.
+2. *emit/on women
+   *emit: join a room with the room key.
+   *on: Receive when the room has two player ready.
     
-*on Parallel(both)
+3. *on Parallel(both)
    Receive every server tick when the game started.
    
    both:{
