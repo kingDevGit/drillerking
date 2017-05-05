@@ -25,6 +25,7 @@ var leftarrow = 37;
 var rightarrow = 39;
 var spacebar = 32;
 var rKey = 82;
+var isRight = true;
 
 var inGame = false;
 var introScreen = true;
@@ -154,7 +155,9 @@ function gameOver() {
 
 // Stuff that happens every time the timer fires
 function onTimer() {
-    stage.update();
+    if (!window.introScreen) {
+        stage.update();
+    } 
 }
 
 //checks all things that can fall to see if they should be falling,
@@ -324,7 +327,9 @@ function Driller(column, row) {
             pos = [this.column, this.row + 1];
         else if (this.drillDirection === "down")
             pos = [this.column, this.row - 1];
-
+        
+        // drilling animation
+        drillerSpriteSheet.gotoAndPlay("drill");
 
         // Check that block is within the bounds of the grid,
         // and disable player from drilling blocks that are currently falling
@@ -397,8 +402,22 @@ function onKeyDown(event) {
     var dx = 0;
     var dy = 0;
 
-    if (keycode === leftarrow) dx--
-    else if (keycode === rightarrow) dx++;
+    if (keycode === leftarrow){
+        dx--;
+        drillerSpriteSheet.gotoAndPlay("walk");
+        if (isRight) {
+            drillerSpriteSheet.scaleX = -1 * drillerSpriteSheet.scaleX;
+            isRight = false;
+        }
+    } 
+    else if (keycode === rightarrow){
+        dx++;
+        drillerSpriteSheet.gotoAndPlay("walk");
+        if (!isRight) {
+            drillerSpriteSheet.scaleX = -1 * drillerSpriteSheet.scaleX;
+            isRight = true;
+        }
+    } 
     else if (keycode === downarrow) dy--;
     else if (keycode === uparrow) dy++;
 
@@ -411,6 +430,7 @@ function onKeyDown(event) {
     // Drilling stuff
     if (keycode === spacebar && introScreen === false) {
         driller.drill();
+        
     }
     if (keycode === spacebar && introScreen === true) {
         setUpWorld();
@@ -437,11 +457,16 @@ function restartGame() {
 
 function loadDrillerSprite(){
     var data = {
-        images: [resources.getResult("drill")],
-        frames: {width:300, height:300},
+        images: [resources.getResult("drill"), resources.getResult("walk")],
+        frames: {width:300, height:300, regX: 150},
         animations: {
             stand:2,
-            drill:[3,4,5],
+            drill:{
+                frames: [3,5],
+                next: false,
+                speed: 0.5
+            },
+            walk: [6,9, "stand", 0.5],
         },
         framerate:5
     };
@@ -454,11 +479,11 @@ function loadDrillerSprite(){
 
 function drawDriller() {
     //Mr.Driller's animation
-    drillerSpriteSheet.x = driller.column*60;
+    drillerSpriteSheet.x = driller.column*70;
     drillerSpriteSheet.y = canvas.height - driller.row*60;
 
     // Draw Mr. Driller's drill
-    var drillOffset = 15;
+    var drillOffset = 10;
     if (driller.drillDirection === "down") {
         var line = new createjs.Shape();
         line.graphics.f("#E01B6A");
