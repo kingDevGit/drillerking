@@ -7,26 +7,28 @@ Before you ask,
 ### **05-May-2017** By King
 Adding Multiplayer support
 Socket Command:
-1. *emit/on lonely 
-   *emit: Create a room for dual mode.
-   *on: return the room key.
+
+1. emit/on lonely 
+    * emit: Create a room for dual mode.
+    * on: return the room key.
    
-2. *emit/on women
-   *emit: join a room with the room key.
-   *on: Receive when the room has two player ready.
+2. emit/on women
+    * emit: join a room with the room key.
+    * on: Receive when the room has two player ready.
     
-3. *on Parallel(both)
-   Receive every server tick when the game started.
-   
+3. on Parallel(both):
+    * Receive every server tick when the game started.  
+    ```javascript   
    both:{
-   adam: *Your World* 
-   eve:  *World of the other player*
+      adam: **Your World** 
+      eve:  **World of the other player**
    }
-
-
+    ```
+ 
 Example:
- testm.js *Create Room*
- tests.js *Join Room*
+
+* testm.js **Create Room**
+* tests.js **Join Room**
 
 ### **28-April-2017** By Felix
 1. Color Blocks and UI changes (See Remark)
