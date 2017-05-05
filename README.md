@@ -4,7 +4,23 @@ Before you ask,
 ***
 
 # Update Changes:
-### **28-April-2017**
+### **05-May-2017** By King
+1. Adding Multiplayer support
+Socket Command:
+*emit/on lonely 
+   Create a room for dual mode.
+   return the room key
+*on women(room)
+   Receive when the room has two player ready.
+    
+*on Parallel(both)
+   Receive every server tick when the game started.
+   
+   both:{
+   adam: *Your World* 
+   eve:  *World of the other player*
+   }  
+### **28-April-2017** By Felix
 1. Color Blocks and UI changes (See Remark)
 2. Add player
 3. change intro sceen
