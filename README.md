@@ -10,6 +10,7 @@ Socket Command:
 *emit/on lonely 
    emit: Create a room for dual mode.
    on: return the room key
+   
 *emit/on women
    emit: join a room with the room key
    on: Receive when the room has two player ready.
