@@ -1,41 +1,78 @@
 "use strict";
-var express = require('express');
-var app = express();
+const express = require('express'),
+    io = require('socket.io');
+let app = express();
 
 
+let serv = require('http').createServer(app);
 
-var serv = require('http').createServer(app);
-var io = require('socket.io');
-var server = io.listen(serv)
-var Blocks = require('./blocks')
+let server = io.listen(serv)
+let Blocks = require('./blocks')
 
 app.set('port', (process.env.PORT || 5000));
 app.set('view engine', 'ejs');
 app.use(express.static(__dirname + '/public'));
 
-app.get('/', function (request, response) {
-    var result = 'noob noob driller online'
+app.get('/', (request, response) => {
+    let result = 'noob noob driller online'
     response.send(result);
 
 });
 
 
-var universe = [];
-var timers = [];
+let universe = [];
+let room = {};
+let timers = [];
 const rows = 15,
     cols = 7;
-var colors = ["red", "blue", "green", "purple"];
+let colors = ["red", "blue", "green", "purple"];
+
 server.on('connection', (socket) => {
     let sid = socket.id;
     console.log('[connection]', sid);
     socket.emit('handshake', sid);
 
     socket.on('disconnect', () => {
-        universe[sid]=null;
+        universe[sid] = null;
         console.log('[disconnect]', sid);
 
     });
+    //Create multi-player room
+    socket.on('lonely', () => {
+        console.log('[Create Room]', sid)
+        // let key = randomKey();
+        let key = "testkey"
 
+        room[key] = {
+            adam: sid,
+            eve: null
+        }
+        console.log('[Room] Created', room[key])
+        socket.emit('lonely', key)
+
+    })
+    //Enter a multi-player room
+
+    socket.on('women', (key) => {
+        if (room[key] && room[key].eve == null) {
+            room[key].eve = sid;
+
+
+            let adam = room[key].adam
+            let eve = room[key].eve
+
+            console.log('Adam', adam,'Eve',eve)
+
+            universe[adam] = build(adam)
+            universe[eve] = build(eve)
+
+            timers[key] = setInterval(()=>{
+                multiPlay(socket,key)
+            },50)
+
+        }
+
+    })
 //Genesis ... In the beginning, God created Heaven and Earth...
     socket.on('genesis', () => {
         console.log('God said: Let there be light! \n[Start Game] from ', sid, 'This is the first day.')
@@ -62,24 +99,43 @@ server.on('connection', (socket) => {
 
     socket.on('drill', (msg) => {
 
-    universe[sid].drill(msg.toDrill,msg.pos,socket);
-
+        universe[sid].drill(msg.toDrill, msg.pos, socket);
 
 
     })
 
 
-
     socket.on('apocalypse', (msg) => {
 
-        console.log("Received Doom Day! "+sid+" Losed")
+        console.log("Received Doom Day! " + sid + " Losed")
 
-       // universe[sid]=null;
+        // universe[sid]=null;
         clearInterval(timers[sid])
 
     })
 
 });
+
+function multiPlay(socket,roomKey){
+
+    let adam = room[roomKey].adam
+    let eve = room[roomKey].eve
+
+    let player1 = {
+        adam:universe[adam],
+        eve:universe[eve]
+    }
+
+    let player2={
+        adam:universe[eve],
+        eve:universe[adam]
+    }
+
+    socket.emit('parallel',player2)
+    socket.broadcast.to(adam).emit('parallel',player1)
+
+
+}
 
 
 function revelation(socket, sid) {
@@ -97,8 +153,8 @@ function world(sid) {
         column: 3,
         countdown: 4,
         depth: 2,
-        score:0,
-        air:100
+        score: 0,
+        air: 100
     };
 
 
@@ -107,7 +163,7 @@ function world(sid) {
 
     }
 
-    this.drill = function(toDrill,pos,socket){
+    this.drill = function (toDrill, pos, socket) {
 
         // Checks if the thing we are drilling is a drillable block.
         // Everything in colors can be drilled.
@@ -117,14 +173,14 @@ function world(sid) {
                 pos[0], pos[1], toDrill.type);
 
             // Drill that group of blocks
-            drillGroup.forEach( (point)=> {
+            drillGroup.forEach((point) => {
                 this.blocks[point.x][point.y] = new Block("empty");
-                this.adam.score+=1;
+                this.adam.score += 1;
             });
-        }else if(toDrill.type==="durable"){
+        } else if (toDrill.type === "durable") {
             toDrill.health--;
             this.blocks[pos[0]][pos[1]] = toDrill;
-            if(toDrill.health===0){
+            if (toDrill.health === 0) {
                 this.blocks[pos[0]][pos[1]] = new Block("empty");
 
                 socket.emit('noob');
@@ -220,7 +276,6 @@ function world(sid) {
     }
 
     this.fillEmpty = function () {
-        console.log("fill NULL")
         var x;
         for (x = 0; x < cols; x++) {
             var y;
@@ -234,7 +289,6 @@ function world(sid) {
                 if (this.blocks[i][j] == null) {
                     console.log("Found null")
                 }
-                console.log(this.blocks[i][j].type)
 
 
             }
@@ -276,12 +330,12 @@ function Block(type, state) {
     this.yOffset = 0;
     this.changeState = function (newState) {
         if (newState === "shaking") {
-        this.countdown = countdownFactor + 2;
-    } else {
-        this.countdown = countdownFactor;
+            this.countdown = countdownFactor + 2;
+        } else {
+            this.countdown = countdownFactor;
+        }
+        this.state = newState;
     }
-    this.state = newState;
-}
 
 }
 
@@ -299,6 +353,16 @@ function build(sid) {
     x.fillEmpty();
     return x;
 
+}
+
+let randomKey = () => {
+    let text = '';
+    let possible = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+    let i;
+
+    for (i = 0; i < 10; i++)
+        text += possible.charAt(Math.floor(Math.random() * possible.length));
+    return text;
 }
 
 
