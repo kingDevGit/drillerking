@@ -17,6 +17,7 @@ function preload_Resouces(callback) {
 
     resources.loadManifest([
         //Background
+        {src: "image/cover.jpg", id: "intro"},
         {src: "image/bg0.jpg", id: "bg0"},
 
         //Character

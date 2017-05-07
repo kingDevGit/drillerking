@@ -37,12 +37,8 @@ var driller;
 var drillerSpriteSheet;
 
 var canvas = document.getElementById("myCanvas");
+var body = document.getElementsByTagName("body")[0];
 var ctx = canvas.getContext("2d");
-var infoScreen = new Image();
-infoScreen.src = "image/cover.jpg";
-infoScreen.onload = function () {
-    drawIntroScreen();
-};
 
 // EaselJS
 var stage;
@@ -63,23 +59,33 @@ function main() {
     socket = io('http://localhost:5000');
     bindSocketListener(socket);
 
+    //TODO: stage machine update 1
     intro();
 
+    // adding listeners to control driller
+    // Focusing canvas so it can register events
+    canvas.setAttribute('tabindex', '0');
+    canvas.focus();
+    canvas.addEventListener('keydown', onKeyDown, false);
+    body.addEventListener('click', focusCanvas, false); //fix focus problem
+
+    //easelJs init
+    stage = new createjs.Stage("myCanvas");
+    createjs.Ticker.addEventListener("tick", onTimer);
+
     // preload resources
-    preload_Resouces(function(){
-        // adding listeners to control driller
-        // Focusing canvas so it can register events
-        canvas.setAttribute('tabindex', '0');
-        canvas.focus();
-        canvas.addEventListener('keydown', onKeyDown, false);
-
-        stage = new createjs.Stage("myCanvas");
-        createjs.Ticker.addEventListener("tick", onTimer);
-
+    preload_Resouces(function () {
+        drawIntroScreen();
         loadDrillerSprite();
     });
 }
 
+// TODO: Switch to state machine for menu control
+function intro() {
+    window.introScreen = true;
+}
+
+// #SocketIOEvent : Socket.io event
 function bindSocketListener(pray) {
     var eden = null;
     pray.on('handshake', function () {
@@ -95,6 +101,7 @@ function bindSocketListener(pray) {
         pray.emit('eden');
     });
 
+    // TODO: single player screen update
     pray.on('eden', function (universe) {
         console.log('World updated');
         blocks = universe.blocks;
@@ -121,6 +128,7 @@ function bindSocketListener(pray) {
             blocks = animate(blocks);
             // Check if Mr. Driller is in an air pocket
             if (blocks[driller.column][driller.row].type === "air") {
+                console.log("air1");
                 blocks[driller.column][driller.row].type = "empty";
                 driller.airPocket();
             }
@@ -135,11 +143,6 @@ function bindSocketListener(pray) {
         driller.air -= 10;
     });
 }
-
-function intro() {
-    window.introScreen = true;
-}
-
 
 function setUpWorld() {
     socket.emit('genesis', null);
@@ -157,9 +160,10 @@ function gameOver() {
 function onTimer() {
     if (!window.introScreen) {
         stage.update();
-    } 
+    }
 }
 
+// #physicsEngine
 //checks all things that can fall to see if they should be falling,
 //then makes them fall
 function gravity() {
@@ -168,15 +172,16 @@ function gravity() {
         blocks[driller.column][driller.row - 1].type === "air") {
 
         if (driller.countdown === 0) {
-            addBottomBlocks(1,
+            /*addBottomBlocks(1,
                 .015,
                 //this argument is the probability of a durable block
                 //essentially this is the function from depth to
                 //difficulty, since durable blocks make it harder
                 Math.pow(driller.depth / 100, 2) /
                 (5 * Math.pow((driller.depth + 300) / 100, 2)));
-            driller.depth += 5;
+            driller.depth += 5;*/
             if (window.blocks[driller.column][driller.row].type === "air") {
+                console.log("air2");
                 driller.airPocket();
                 blocks[driller.column][driller.row].type = "empty";
             }
@@ -186,8 +191,10 @@ function gravity() {
         }
     }
 
-    var fallObj = blockGravity(blocks);
-    blocks = fallObj.blockGrid;
+    //TODO: server side problem
+    //TODO: BUG - gravity drop will not encounter get airPocket
+    //var fallObj = blockGravity(blocks);
+    //blocks = fallObj.blockGrid;
     //check if driller was crushed
     if (window.blocks[driller.column][driller.row].type !== "empty"
         && window.blocks[driller.column][driller.row].type !== "air"
@@ -259,6 +266,7 @@ function Driller(column, row) {
             || blocks[this.column + dx][this.row + dy].type === "air")) {
             this.column += dx;
             if (blocks[this.column][this.row].type === "air") {
+                console.log("air3)");
                 blocks[this.column][this.row].type = "empty";
                 this.airPocket();
             }
@@ -327,7 +335,7 @@ function Driller(column, row) {
             pos = [this.column, this.row + 1];
         else if (this.drillDirection === "down")
             pos = [this.column, this.row - 1];
-        
+
         // drilling animation
         drillerSpriteSheet.gotoAndPlay("drill");
 
@@ -347,54 +355,6 @@ function Driller(column, row) {
     }
 }
 
-//adds a line of empty blocks at the bottom
-//used for initiating the screen
-function addEmptyBlocks(depth) {
-    for (var d = 0; d < window.depth; d++) {
-        for (var x = 0; x < window.numColumns; x++) {
-            // pushes a new item onto the beginning of the array
-            window.blocks[x].unshift(new Block("empty"));
-        }
-        if (blocks[x].length > numRows) {
-            blocks[x].pop();
-        }
-    }
-    return blocks;
-}
-
-
-// Called whenever Mr. Driller moves down or whenever we want to add a new row
-// of blocks to the bottom of the array
-function addBottomBlocks(depth, airProbability, durableProbability) {
-    var d;
-    for (d = 0; d < depth; d++) {
-        var x;
-        for (x = 0; x < numColumns; x++) {
-            // pushes a new item onto the beginning of the array
-            window.blocks[x].unshift(new Block(colors[Math.floor(Math.random() * colors.length)]));
-            if (Math.random() < airProbability) {
-                blocks[x][0].type = "air";
-            } else if (Math.random() < durableProbability) {
-                blocks[x][0].type = "durable";
-            }
-            if (blocks[x].length > numRows) {
-                blocks[x].pop();
-            }
-        }
-    }
-    return blocks;
-}
-
-function fillEmpty() {
-    var x;
-    for (x = 0; x < numColumns; x++) {
-        var y;
-        while (blocks[x].length < numRows) {
-            blocks[x].push(new Block("empty"));
-        }
-    }
-}
-
 function onKeyDown(event) {
     var keycode = event.keyCode;
 
@@ -402,22 +362,22 @@ function onKeyDown(event) {
     var dx = 0;
     var dy = 0;
 
-    if (keycode === leftarrow){
+    if (keycode === leftarrow) {
         dx--;
         drillerSpriteSheet.gotoAndPlay("walk");
         if (isRight) {
             drillerSpriteSheet.scaleX = -1 * drillerSpriteSheet.scaleX;
             isRight = false;
         }
-    } 
-    else if (keycode === rightarrow){
+    }
+    else if (keycode === rightarrow) {
         dx++;
         drillerSpriteSheet.gotoAndPlay("walk");
         if (!isRight) {
             drillerSpriteSheet.scaleX = -1 * drillerSpriteSheet.scaleX;
             isRight = true;
         }
-    } 
+    }
     else if (keycode === downarrow) dy--;
     else if (keycode === uparrow) dy++;
 
@@ -430,12 +390,11 @@ function onKeyDown(event) {
     // Drilling stuff
     if (keycode === spacebar && introScreen === false) {
         driller.drill();
-        
+
     }
     if (keycode === spacebar && introScreen === true) {
         setUpWorld();
     }
-
 
     // Restart
     if (keycode === rKey
@@ -453,168 +412,16 @@ function restartGame() {
 }
 
 
-///////// graphics and drawing stuff /////////
-
-function loadDrillerSprite(){
-    var data = {
-        images: [resources.getResult("drill"), resources.getResult("walk")],
-        frames: {width:300, height:300, regX: 150},
-        animations: {
-            stand:2,
-            drill:{
-                frames: [3,5],
-                next: false,
-                speed: 0.5
-            },
-            walk: [6,9, "stand", 0.5],
-        },
-        framerate:5
-    };
-    var spriteSheet = new createjs.SpriteSheet(data);
-    drillerSpriteSheet = new createjs.Sprite(spriteSheet, "stand");
-    drillerSpriteSheet.gotoAndPlay("stand");
-    drillerSpriteSheet.scaleX = 50/300;
-    drillerSpriteSheet.scaleY = 50/300;
-}
-
-function drawDriller() {
-    //Mr.Driller's animation
-    drillerSpriteSheet.x = driller.column*70;
-    drillerSpriteSheet.y = canvas.height - driller.row*60;
-
-    // Draw Mr. Driller's drill
-    var drillOffset = 10;
-    if (driller.drillDirection === "down") {
-        var line = new createjs.Shape();
-        line.graphics.f("#E01B6A");
-        line.graphics.beginStroke("#E01B6A");
-        line.graphics.moveTo(driller.column * 60 + 25,
-            canvas.height - driller.row * 60 + 45);
-        line.graphics.lineTo(driller.column * 60 + 30,
-            canvas.height - driller.row * 60 + 60);
-        line.graphics.lineTo(driller.column * 60 + 35,
-            canvas.height - driller.row * 60 + 45);
-        line.graphics.endStroke();
-        stage.addChild(line);
-    }
-    else if (driller.drillDirection === "up") {
-        var line = new createjs.Shape();
-        line.graphics.f("#E01B6A");
-        line.graphics.beginStroke("#E01B6A");
-        line.graphics.moveTo(driller.column * 60 + 25,
-            canvas.height - driller.row * 60 + 15);
-        line.graphics.lineTo(driller.column * 60 + 30,
-            canvas.height - driller.row * 60);
-        line.graphics.lineTo(driller.column * 60 + 35,
-            canvas.height - driller.row * 60 + 15);
-        line.graphics.endStroke();
-        stage.addChild(line);
-    }
-    else if (driller.drillDirection === "left") {
-        var line = new createjs.Shape();
-        line.graphics.f("#E01B6A");
-        line.graphics.beginStroke("#E01B6A");
-        line.graphics.moveTo(driller.column * 60 + 15,
-            canvas.height - driller.row * 60 + 25);
-        line.graphics.lineTo(driller.column * 60,
-            canvas.height - driller.row * 60 + 30);
-        line.graphics.lineTo(driller.column * 60 + 15,
-            canvas.height - driller.row * 60 + 35);
-        line.graphics.endStroke();
-        stage.addChild(line);
-
-    }
-    else if (driller.drillDirection === "right") {
-        var line = new createjs.Shape();
-        line.graphics.f("#E01B6A");
-        line.graphics.beginStroke("#E01B6A");
-        line.graphics.moveTo(driller.column * 60 + 45,
-            canvas.height - driller.row * 60 + 25);
-        line.graphics.lineTo(driller.column * 60 + 60,
-            canvas.height - driller.row * 60 + 30);
-        line.graphics.lineTo(driller.column * 60 + 45,
-            canvas.height - driller.row * 60 + 35);
-        line.graphics.endStroke();
-        stage.addChild(line);
-    }
-
-    stage.addChild(drillerSpriteSheet);
-}
-
-function drawScoreboard(width, height) {
-    //drawRectangle("black", 0, 0, worldWidth, canvas.height);
-    //drawRectangle("black", canvas.width - width, 0, width, height);
-
-
-    drawRoundedRectangle("Khaki", canvas.width - width + 5,
-        height / 9 - 30,
-        width - 5, 35, 5);
-    drawText("LIVES", "35px Arial", "white", canvas.width - width + 10, height / 9 - 30, "start");
-    drawText("" + driller.lives, "35px Arial", "white", canvas.width, height / 9 - 30, "end");
-
-    drawRoundedRectangle("LightCoral", canvas.width - width + 5,
-        3 * height / 9 - 30,
-        width - 5, 35, 5);
-    drawText("DEPTH: ", "35px Arial", "white", canvas.width - width + 10, 3 * height / 9 - 30, "start");
-    drawText("" + driller.depth + "ft", "35px Arial", "white",
-        canvas.width - 10, 4 * height / 9 - 30, "end");
-
-    drawRoundedRectangle("LightBlue", canvas.width - width + 5,
-        5 * height / 9 - 30,
-        width - 5, 35, 5);
-    drawText("AIR: ", "35px Arial", "white",
-        canvas.width - width + 10, 5 * height / 9 - 30, "start");
-
-    drawRoundedRectangle("white", canvas.width - width + 10,
-        5.7 * height / 9,
-        width - 20, 20, 5);
-
-    drawRoundedRectangle("LightBlue",
-        (canvas.width - width + 15) + (1 - driller.air / 100) * (width - 30),
-        5.7 * height / 9 + 5,
-        (width - 30) * (driller.air / 100), 10, 1);
-
-    drawRoundedRectangle("plum", canvas.width - width + 5,
-        7 * height / 9 - 30,
-        width - 5, 35, 5);
-    drawText("SCORE: ", "35px Arial", "white",
-        canvas.width - width + 10, 7 * height / 9 - 30, "start");
-    drawText("" + window.score, "35px Arial", "white",
-        canvas.width - 10, 8 * height / 9 - 30, "end");
-}
-
-function drawGameOver() {
-    drawRectangle("rgba(0,0,0,.5)", 0, 0, canvas.width, canvas.height);
-
-    drawText("GAME OVER", "60px Arial", "white", canvas.width / 2, canvas.height / 2, "center");
-    drawText("Press R to play again", "40px Arial", "white", canvas.width / 2, canvas.height / 2 + 70, "center");
-    stage.update();
-}
-
-function drawWorld() {
-    reset();
-    drawBlocks();
-    drawDriller();
-}
-
-function drawBackGround(){
-    var bgImg = resources.getResult("bg0");
-    addBitmap(bgImg,0,0,canvas.width,canvas.height);
-}
-
 // This is the drawing function that happens every time
 function drawDisplay() {
     if (window.introScreen) {
         drawIntroScreen();
     } else {
-        drawBackGround();
+        drawBackground();
         drawScoreboard(canvas.width - worldWidth, canvas.height);
-        drawWorld();
+        drawBlocks();
+        drawDriller();
     }
-}
-
-function drawIntroScreen() {
-    ctx.drawImage(window.infoScreen, 0, 0, 600, 600, 0, 0, 600, 600);
 }
 
 // Just offshores (to China) the drawing of blocks and figuring out whether to
@@ -658,28 +465,11 @@ function drawBlock(column, row, type) {
     }
 
     function drawAir() {
-        /*var color = "lightblue";
-        var radius = 12;
-        circle(color,
-            column * 60 + (1.5 * radius) + blocks[column][row].xOffset,
-            canvas.height - (row - 1) * 60 - (1.5 * radius),
-            radius);
-
-        circle(color,
-            (column) * 60 + 30 + blocks[column][row].xOffset,
-            canvas.height - (row) * 60 + 30,
-            radius);
-
-        circle(color,
-            (column + 1) * 60 - (1.5 * radius) + blocks[column][row].xOffset,
-            canvas.height - (row) * 60 + (1.5 * radius),
-            radius);*/
-
         var chickenleg = resources.getResult("chickenleg");
         addBitmap(chickenleg,
             column * 60 + 5 + blocks[column][row].xOffset,
             canvas.height - row * 60 + 5,
-            50,50);
+            50, 50);
     }
 
     function drawDurable(block) {
@@ -742,75 +532,9 @@ function drawBlock(column, row, type) {
     }
 }
 
-function reset() {
-    //drawRectangle("black",0,0,canvas.width,canvas.height);
-    //ctx.fillStyle= "black";
-    //ctx.fillRect(0,0,worldWidth,canvas.height);
-}
-
-function drawText(text, font, color, x, y, align) {
-    var text = new createjs.Text(text, font, color);
-    text.x = x;
-    text.y = y;
-    text.textAlign = align;
-    stage.addChild(text);
-}
-
-function drawRectangle(ctx, x, y, width, height) {
-    var rect = new createjs.Shape();
-    rect.graphics.beginFill(ctx).dr(x, y, width, height);
-    stage.addChild(rect);
-}
-
-function drawRoundedRectangle(ctx, x, y, width, height, radius) {
-    var roundedRect = new createjs.Shape();
-    roundedRect.graphics.f(ctx).rr(0, 0, width, height, radius);
-    roundedRect.x = x;
-    roundedRect.y = y;
-    stage.addChild(roundedRect);
-}
-
-function circle(ctx, cx, cy, radius) {
-    var circle = new createjs.Shape();
-    circle.graphics.f(ctx).dc(0, 0, radius);
-    circle.x = cx;
-    circle.y = cy;
-    stage.addChild(circle);
-}
-
-function addBitmap(img,x,y,width,height){
-    var bitmap = new createjs.Bitmap(img);
-    bitmap.x = x;
-    bitmap.y = y;
-    bitmap.scaleX = width/img.width;
-    bitmap.scaleY = height/img.height;
-    stage.addChild(bitmap);
-}
-
-function drawLine(x1, y1, x2, y2, stroke, color) {
-    var line = new createjs.Shape();
-    line.graphics.setStrokeStyle(stroke);
-    line.graphics.beginStroke(color);
-    line.graphics.moveTo(x1, y1);
-    line.graphics.lineTo(x2, y2);
-    line.graphics.endStroke();
-    stage.addChild(line);
-}
-
-function rgbToString(r, g, b, a) {
-    var retStr;
-
-    if (a === undefined) {
-        retStr = ("rgb(" + String(r) + ","
-        + String(g) + ","
-        + String(b) + ")");
-    } else {
-        retStr = ("rgba(" + String(r) + ","
-        + String(g) + ","
-        + String(b) + ","
-        + String(a) + ")");
-    }
-    return retStr;
+// #focus
+function focusCanvas() {
+    canvas.focus();
 }
 
 main();

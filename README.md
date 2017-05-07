@@ -70,5 +70,10 @@ and some basic setup
     * Some images need to be reloaded.
     * A new javascript file has been created
 
+5. **Update mechanism**
+All the graphics are updated after receiving the "tick" (eden). So, disconnection will lead to freezing problem.
+
+    `drawDisplay()` and `gravity()` will called every time. The tick is synced with the server.
+
 
 
