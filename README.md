@@ -4,19 +4,43 @@ Before you ask,
 ***
 
 # Update Changes:
+### **07-May-2017** By Felix
+
+1. Reconstruct the program
+    * Split the render and controller part into two js file, `main.js` and `render.js`
+    * `render.js` contain all about the render functions.
+        * e.g draw Score board, Background, etc
+
+2. Add state machine
+    * SCION-CORE
+[link](https://github.com/jbeard4/SCION-CORE)
+. The flow of the game is using state machine to control. js/StateMachine.js
+
+3. Edit some code to become modular
+
+    Previous version of the code is used for single player only.
+    Modification is needed to enable multi-player mode.
+
+4. Update keyboard listener
+
+    State check for corresponding key down event.
+    
+***
+
 ### **05-May-2017** By King
 Adding Multiplayer support
+
 Socket Command:
 
-1. emit/on lonely 
+1. emit/on `lonely`
     * emit: Create a room for dual mode.
     * on: return the room key.
    
-2. emit/on women
+2. emit/on `women`
     * emit: join a room with the room key.
     * on: Receive when the room has two player ready.
     
-3. on Parallel(both):
+3. on `parallel(both)`:
     * Receive every server tick when the game started.  
     ```javascript   
    both:{
@@ -29,6 +53,8 @@ Example:
 
 * testm.js **Create Room**
 * tests.js **Join Room**
+
+***
 
 ### **28-April-2017** By Felix
 1. Color Blocks and UI changes (See Remark)
