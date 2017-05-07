@@ -6,6 +6,7 @@
  */
 
 ///////// graphics and drawing stuff /////////
+////////  dedicated rendering functions
 
 function loadDrillerSprite() {
     var data = {
@@ -96,47 +97,48 @@ function drawDriller() {
 function drawScoreboard(width, height) {
     //drawRectangle("black", 0, 0, worldWidth, canvas.height);
     //drawRectangle("black", canvas.width - width, 0, width, height);
+    var canvasWidth = 600;
 
     //Lives
-    drawRoundedRectangle("Khaki", canvas.width - width + 5,
+    drawRoundedRectangle("Khaki", canvasWidth - width + 5,
         height / 9 - 30,
         width - 5, 35, 5);
-    drawText("LIVES", "35px Arial", "white", canvas.width - width + 10, height / 9 - 30, "start");
-    drawText("" + driller.lives, "35px Arial", "white", canvas.width, height / 9 - 30, "end");
+    drawText("LIVES", "35px Arial", "white", canvasWidth - width + 10, height / 9 - 30, "start");
+    drawText("" + driller.lives, "35px Arial", "white", canvasWidth, height / 9 - 30, "end");
 
     //Depth
-    drawRoundedRectangle("LightCoral", canvas.width - width + 5,
+    drawRoundedRectangle("LightCoral", canvasWidth - width + 5,
         3 * height / 9 - 30,
         width - 5, 35, 5);
-    drawText("DEPTH: ", "35px Arial", "white", canvas.width - width + 10, 3 * height / 9 - 30, "start");
+    drawText("DEPTH: ", "35px Arial", "white", canvasWidth - width + 10, 3 * height / 9 - 30, "start");
     drawText("" + driller.depth + "ft", "35px Arial", "white",
-        canvas.width - 10, 4 * height / 9 - 30, "end");
+        canvasWidth - 10, 4 * height / 9 - 30, "end");
 
     //ENERGY
-    drawRoundedRectangle("LightBlue", canvas.width - width + 5,
+    drawRoundedRectangle("LightBlue", canvasWidth - width + 5,
         5 * height / 9 - 30,
         width - 5, 35, 5);
     drawText("ENERGY: ", "35px Arial", "white",
-        canvas.width - width + 10, 5 * height / 9 - 30, "start");
+        canvasWidth - width + 10, 5 * height / 9 - 30, "start");
 
     //ENERGY BAR
-    drawRoundedRectangle("white", canvas.width - width + 10,
+    drawRoundedRectangle("white", canvasWidth - width + 10,
         5.7 * height / 9,
         width - 20, 20, 5);
 
     drawRoundedRectangle("LightBlue",
-        (canvas.width - width + 15) + (1 - driller.air / 100) * (width - 30),
+        (canvasWidth - width + 15) + (1 - driller.air / 100) * (width - 30),
         5.7 * height / 9 + 5,
         (width - 30) * (driller.air / 100), 10, 1);
 
     //SCORE
-    drawRoundedRectangle("plum", canvas.width - width + 5,
+    drawRoundedRectangle("plum", canvasWidth - width + 5,
         7 * height / 9 - 30,
         width - 5, 35, 5);
     drawText("SCORE: ", "35px Arial", "white",
-        canvas.width - width + 10, 7 * height / 9 - 30, "start");
+        canvasWidth - width + 10, 7 * height / 9 - 30, "start");
     drawText("" + window.score, "35px Arial", "white",
-        canvas.width - 10, 8 * height / 9 - 30, "end");
+        canvasWidth - 10, 8 * height / 9 - 30, "end");
 }
 
 function drawGameOver() {
@@ -148,6 +150,9 @@ function drawGameOver() {
 }
 
 function drawIntroScreen() {
+    mode = 1;
+    resizeCanvas();
+
     var intro = resources.getResult("intro");
     addBitmap(intro, 0, 0, canvas.width, canvas.height);
     stage.update();
@@ -158,8 +163,166 @@ function drawBackground() {
     addBitmap(bgImg, 0, 0, canvas.width, canvas.height);
 }
 
-// EaselJS wrapper
-// Graphics Wrapper funciton
+function drawMenu() {
+    mode = 1;
+    resizeCanvas();
+
+    var bgImg = resources.getResult("bg0");
+    addBitmap(bgImg, 0, 0, canvas.width, canvas.height);
+
+    addButton("Single Player", 300, 200, "red", function () {
+        switchState("single", null);
+    });
+
+    addButton("Create Room", 300, 300, "blue", function () {
+        switchState("create", null);
+    });
+
+    addButton("Join Room", 300, 400, "green", function () {
+        switchState("join", null);
+    });
+
+    stage.update();
+}
+
+function drawSingleModeDisplay() {
+    drawBackground();
+    drawScoreboard(600 - worldWidth, canvas.height);
+    drawBlocks(blocks,2);
+    drawDriller();
+}
+
+function drawMultiModeDisplay(){
+    drawBackground();
+    drawScoreboard(600 - worldWidth, canvas.height);
+    drawBlocks(blocks,1);
+    drawBlocks(duelBlocks,2);
+    drawDriller();
+}
+
+function resizeCanvas() {
+    if (mode == 1) {
+        stage.canvas.width = 600;
+    }
+    else if (mode == 2) {
+        stage.canvas.width = 600 + worldWidth;
+    }
+}
+
+///////// Blocks related stuff ///////////
+
+// connect blocks visually
+function drawBlocks(_blocks, mode) {
+    for (var column = 0; column < numColumns; column++) {
+        for (var index = 0; index < _blocks[column].length; index++) {
+            drawBlock(column, index, _blocks[column][index].type, mode);
+        }
+    }
+}
+
+// If blocks are adjacent and same color, connects them
+function drawBlock(column, row, type, mode) {
+    var viewOffset = 0;
+    mode == 1 ? viewOffset = 0 : viewOffset = 600;
+
+    function drawNormal(fillStyle) {
+        var color = fillStyle;
+
+        var hasAdjacent = false;
+
+        //detects overlap
+        if (column > 0 && blocks[column - 1][row].type === type) {
+            drawRoundedRectangle(color,
+                (column - 1) * 60 + 5 + viewOffset + blocks[column][row].xOffset,
+                canvas.height - row * 60 + 5,
+                110, 50, 5);
+            hasAdjacent = true;
+        }
+        if (row > 0 && blocks[column][row - 1].type === type) {
+            drawRoundedRectangle(color,
+                column * 60 + 5 + viewOffset + blocks[column][row].xOffset,
+                canvas.height - row * 60 + 5,
+                50, 110, 5);
+            hasAdjacent = true;
+        }
+        if (hasAdjacent === false) {
+            drawRoundedRectangle(color,
+                column * 60 + 5 + viewOffset + blocks[column][row].xOffset,
+                canvas.height - row * 60 + 5,
+                50, 50, 5);
+        }
+    }
+
+    function drawAir() {
+        var chickenleg = resources.getResult("chickenleg");
+        addBitmap(chickenleg,
+            column * 60 + 5 + viewOffset + blocks[column][row].xOffset,
+            canvas.height - row * 60 + 5,
+            50, 50);
+    }
+
+    function drawDurable(block) {
+        var r = 122;
+        var g = 71;
+        var b = 20;
+        var a = 1 - (3 - block.health) * 0.25;
+
+        var color;
+        color = rgbToString(r, g, b, a);
+        drawRoundedRectangle(color,
+            column * 60 + 5 + viewOffset + blocks[column][row].xOffset,
+            canvas.height - row * 60 + 5,
+            50, 50, 5);
+
+        var innerTopLeft = {
+            "x": column * 60 + 10 + viewOffset + blocks[column][row].xOffset,
+            "y": canvas.height - row * 60 + 10
+        };
+        color = rgbToString(r - 20, g - 20, b - 20, a);
+        drawRoundedRectangle(color,
+            innerTopLeft.x,
+            innerTopLeft.y,
+            40, 40, 5);
+
+        color = rgbToString(r + 10, g + 10, b + 10, a);
+        var stroke = 5;
+        drawLine(innerTopLeft.x + 5, innerTopLeft.y + 5,
+            innerTopLeft.x + 35, innerTopLeft.y + 35,
+            stroke, color);
+        drawLine(innerTopLeft.x + 5, innerTopLeft.y + 35,
+            innerTopLeft.x + 35, innerTopLeft.y + 5,
+            stroke, color);
+    }
+
+    //dont draw anything for empty blocks
+    if (type === "empty")
+        return;
+    if (type === "blue") {
+        drawNormal("LightCyan");
+    }
+    else if (type === "green") {
+        drawNormal("Khaki");
+    }
+    else if (type === "red") {
+        drawNormal("LightCoral");
+    }
+    else if (type === "purple") {
+        drawNormal("plum");
+    }
+    // drawing air and durables should be different
+    // they don't connect
+    else if (type === "air") {
+        // ctx.fillStyle = "lightblue";
+        drawAir();
+    }
+    else if (type === "durable") {
+        drawDurable(blocks[column][row]);
+    }
+}
+
+/////////     EaselJS wrapper   ////////////
+// Graphics Wrapper function
+// These function should be general and reusable
 function drawText(text, font, color, x, y, align) {
     var text = new createjs.Text(text, font, color);
     text.x = x;
@@ -224,3 +387,33 @@ function rgbToString(r, g, b, a) {
     }
     return retStr;
 }
+
+function addButton(text, x, y, txtcolor, keyDown) {
+
+    var label2 = new createjs.Text(text, "48px Arial", txtcolor);
+    label2.x = x;
+    label2.y = y;
+    label2.textAlign = "center";
+    label2.alpha = 0.5;
+
+    // create a rectangle shape the same size as the text, and assign it as the hitArea
+    // note that it is never added to the display list.
+    var hit = new createjs.Shape();
+    hit.graphics.beginFill("#000")
+        .drawRect(0, 0,
+        label2.getMeasuredWidth(),
+        label2.getMeasuredHeight());
+
+    label2.hitArea = hit;
+
+    label2.on("mouseover", buttonHandleInteraction);
+    label2.on("mouseout", buttonHandleInteraction);
+    label2.on("pressup", keyDown);
+
+    stage.addChild(label2);
+
+    function buttonHandleInteraction(event) {
+        event.target.alpha = (event.type == "mouseover") ? 1 : 0.5;
+    }
+}
+

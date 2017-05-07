@@ -20,6 +20,9 @@ function preload_Resouces(callback) {
         {src: "image/cover.jpg", id: "intro"},
         {src: "image/bg0.jpg", id: "bg0"},
 
+        //Menu
+        {src: "image/menu.jpg", id: "menu"},
+
         //Character
         {src: "image/drill.png", id: "drill"},
         {src: "image/walk.png", id: "walk"},
@@ -34,7 +37,7 @@ function preload_Resouces(callback) {
         {src: "image/character3_attack.png", id: "character3_attack"},*/
 
         //Props
-        {src: "image/chickenleg.png", id: "chickenleg"},
+        {src: "image/chickenleg.png", id: "chickenleg"}
 
     ]);
 }
