@@ -215,13 +215,13 @@ function resizeCanvas() {
 function drawBlocks(_blocks, mode) {
     for (var column = 0; column < numColumns; column++) {
         for (var index = 0; index < _blocks[column].length; index++) {
-            drawBlock(column, index, _blocks[column][index].type, mode);
+            drawBlock(column, index, _blocks[column][index].type, mode, _blocks);
         }
     }
 }
 
 // If blocks are adjacent and same color, connects them
-function drawBlock(column, row, type, mode) {
+function drawBlock(column, row, type, mode, _blocks) {
     var viewOffset = 0;
     mode == 1 ? viewOffset = 0 : viewOffset = 600;
 
@@ -231,23 +231,23 @@ function drawBlock(column, row, type, mode) {
         var hasAdjacent = false;
 
         //detects overlap
-        if (column > 0 && blocks[column - 1][row].type === type) {
+        if (column > 0 && _blocks[column - 1][row].type === type) {
             drawRoundedRectangle(color,
-                (column - 1) * 60 + 5 + viewOffset + blocks[column][row].xOffset,
+                (column - 1) * 60 + 5 + viewOffset + _blocks[column][row].xOffset,
                 canvas.height - row * 60 + 5,
                 110, 50, 5);
             hasAdjacent = true;
         }
-        if (row > 0 && blocks[column][row - 1].type === type) {
+        if (row > 0 && _blocks[column][row - 1].type === type) {
             drawRoundedRectangle(color,
-                column * 60 + 5 + viewOffset + blocks[column][row].xOffset,
+                column * 60 + 5 + viewOffset + _blocks[column][row].xOffset,
                 canvas.height - row * 60 + 5,
                 50, 110, 5);
             hasAdjacent = true;
         }
         if (hasAdjacent === false) {
             drawRoundedRectangle(color,
-                column * 60 + 5 + viewOffset + blocks[column][row].xOffset,
+                column * 60 + 5 + viewOffset + _blocks[column][row].xOffset,
                 canvas.height - row * 60 + 5,
                 50, 50, 5);
         }
@@ -256,7 +256,7 @@ function drawBlock(column, row, type, mode) {
     function drawAir() {
         var chickenleg = resources.getResult("chickenleg");
         addBitmap(chickenleg,
-            column * 60 + 5 + viewOffset + blocks[column][row].xOffset,
+            column * 60 + 5 + viewOffset + _blocks[column][row].xOffset,
             canvas.height - row * 60 + 5,
             50, 50);
     }
@@ -270,12 +270,12 @@ function drawBlock(column, row, type, mode) {
         var color;
         color = rgbToString(r, g, b, a);
         drawRoundedRectangle(color,
-            column * 60 + 5 + viewOffset + blocks[column][row].xOffset,
+            column * 60 + 5 + viewOffset + _blocks[column][row].xOffset,
             canvas.height - row * 60 + 5,
             50, 50, 5);
 
         var innerTopLeft = {
-            "x": column * 60 + 10 + viewOffset + blocks[column][row].xOffset,
+            "x": column * 60 + 10 + viewOffset + _blocks[column][row].xOffset,
             "y": canvas.height - row * 60 + 10
         };
         color = rgbToString(r - 20, g - 20, b - 20, a);
@@ -316,7 +316,7 @@ function drawBlock(column, row, type, mode) {
         drawAir();
     }
     else if (type === "durable") {
-        drawDurable(blocks[column][row]);
+        drawDurable(_blocks[column][row]);
     }
 }
 

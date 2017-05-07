@@ -21,7 +21,7 @@ function preload_Resouces(callback) {
         {src: "image/bg0.jpg", id: "bg0"},
 
         //Menu
-        {src: "image/menu.jpg", id: "menu"},
+        //{src: "image/menu.jpg", id: "menu"},
 
         //Character
         {src: "image/drill.png", id: "drill"},
