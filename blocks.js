@@ -8,13 +8,13 @@
 //   shaking
 //   falling
 
-var Blocks = function(){}
+let Blocks = function(){}
 // Given a position and a type of block, recursively finds a connected group of
 // blocks of that type starting at that position.
 // Returns an array of points, with a point for each block in the group""
 
 function Block(type, state) {
-    var countdownFactor = 6;
+    let countdownFactor = 6;
 
     //string describing the content of the block
     this.type = type;
@@ -46,8 +46,8 @@ function Block(type, state) {
 
 
 Blocks.prototype.getBlockGroup=function(blocks, x, y, blockType) {
-    var checkTable = {};
-    var groupList = [];
+    let checkTable = {};
+    let groupList = [];
 
     function formatKey(x, y) {
         return (String(x) + " " + String(y));
@@ -90,7 +90,7 @@ Blocks.prototype.blockGravity=function(blocks) {
     // "falls" means the space will fall
     // "stays" means the space will not fall
     // This way, we don't repeatedly check different parts of the same group.
-    var checkedGrid = [];
+    let checkedGrid = [];
 
     for (let i = 0; i < blocks.length; i++) {
         var inner = [];
@@ -116,7 +116,7 @@ Blocks.prototype.blockGravity=function(blocks) {
                 checkedGrid[x][y] = "falls";
             else if (checkedGrid[x][y] === "unchecked") {
                 // The block will not be empty
-                var groupList = this.getBlockGroup(blocks, x, y, blocks[x][y].type);
+                let groupList = this.getBlockGroup(blocks, x, y, blocks[x][y].type);
 
                 // If the group can fall, add it to the list of falling
                 // groups, which we will move at the end of the block
@@ -233,7 +233,7 @@ Blocks.prototype.blockGravityMove=function(blocks, checkedGrid) {
 // Checks that every block in the group is capable of falling one square.
 // Returns true if that is the case.
  Blocks.prototype.groupFalls=function(blocks, checkedGrid, groupList) {
-    var canFall = true;
+    let canFall = true;
 
     groupList.forEach( (p)=> {
         // Set the status to checking to avoid infinite recursion

@@ -69,7 +69,6 @@ server.on('connection', (socket) => {
                 timers[key] = setInterval(() => {
                     multiPlay(socket, key)
                 }, 50)
-
             }
         }
 
@@ -96,26 +95,26 @@ server.on('connection', (socket) => {
     })
     //Enter a multi-player room
 
-    socket.on('women', (key) => {
-        if (room[key] && room[key].eve == null) {
-            room[key].eve = sid;
-
-
-            let adam = room[key].adam
-            let eve = room[key].eve
-
-            console.log('Adam', adam, 'Eve', eve)
-
-            universe[adam] = build(adam)
-            universe[eve] = build(eve)
-
-            timers[key] = setInterval(() => {
-                multiPlay(socket, key)
-            }, 50)
-
-        }
-
-    })
+    // socket.on('women', (key) => {
+    //     if (room[key] && room[key].eve == null) {
+    //         room[key].eve = sid;
+    //
+    //
+    //         let adam = room[key].adam
+    //         let eve = room[key].eve
+    //
+    //         console.log('Adam', adam, 'Eve', eve)
+    //
+    //         universe[adam] = build(adam)
+    //         universe[eve] = build(eve)
+    //
+    //         timers[key] = setInterval(() => {
+    //             multiPlay(socket, key)
+    //         }, 50)
+    //
+    //     }
+    //
+    // })
 //Genesis ... In the beginning, God created Heaven and Earth...
     socket.on('genesis', () => {
         console.log('God said: Let there be light! \n[Start Game] from ', sid, 'This is the first day.')
@@ -157,6 +156,29 @@ server.on('connection', (socket) => {
 
     })
 
+    socket.on('someone_lose', (roomkey) => {
+        clearInterval(timers[roomkey]);
+        let adam = room[roomKey].adam
+        let eve = room[roomKey].eve
+
+
+
+        if(id == adam.sid){
+
+
+
+            socket.broadcast.to(eve).emit('triumph')
+
+        }else{
+
+            socket.broadcast.to(adam).emit('triumph')
+        }
+
+
+
+
+    })
+
 });
 
 function multiPlay(socket, roomKey) {
@@ -166,12 +188,14 @@ function multiPlay(socket, roomKey) {
 
     let player1 = {
         adam: universe[adam],
-        eve: universe[eve]
+        eve: universe[eve],
+        key: roomKey
     }
 
     let player2 = {
         adam: universe[eve],
-        eve: universe[adam]
+        eve: universe[adam],
+        key: roomKey
     }
 
     socket.emit('parallel', player2)
@@ -239,8 +263,8 @@ function world(sid) {
     }
 
     this.addEmptyBlocks = function (depth) {
-        for (var d = 0; d < depth; d++) {
-            for (var x = 0; x < cols; x++) {
+        for (let d = 0; d < depth; d++) {
+            for (let x = 0; x < cols; x++) {
                 // pushes a new item onto the beginning of the array
                 this.blocks[x].unshift(new Block("empty"));
             }
@@ -291,7 +315,7 @@ function world(sid) {
             }
         }
 
-        var fallObj = Blocks.blockGravity(this.blocks);
+        let fallObj = Blocks.blockGravity(this.blocks);
         this.blocks = fallObj.blockGrid;
 
     }
@@ -319,9 +343,9 @@ function world(sid) {
     }
 
     this.fillEmpty = function () {
-        var x;
+        let x;
         for (x = 0; x < cols; x++) {
-            var y;
+            let y;
             while (this.blocks[x].length < rows) {
                 this.blocks[x].push(new Block("empty"));
             }
@@ -332,8 +356,6 @@ function world(sid) {
                 if (this.blocks[i][j] == null) {
                     console.log("Found null")
                 }
-
-
             }
         }
 
@@ -354,7 +376,7 @@ function world(sid) {
 
 
 function Block(type, state) {
-    var countdownFactor = 6;
+    let countdownFactor = 6;
 
     //string describing the content of the block
     this.type = type;
@@ -389,7 +411,7 @@ function canDrill(block) {
 
 function build(sid) {
 
-    var x = new world(sid);
+    let x = new world(sid);
 
     x.addEmptyBlocks(2)
     x.addBottomBlocks(5, 0, 0);

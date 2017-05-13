@@ -1,4 +1,4 @@
-let pray = require('socket.io-client')('http://localhost:5000');
+let pray = require('socket.io-client')('http://:5000');
 
 
 let eden = null
