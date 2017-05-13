@@ -160,7 +160,7 @@ server.on('connection', (socket) => {
         let eve = room[roomKey].eve
 
 
-        if (id == adam.sid) {
+        if (sid == adam.sid) {
 
 
             socket.broadcast.to(eve).emit('triumph')

@@ -346,7 +346,7 @@ function Driller(column, row) {
     this.countdown = countdownFactor;
     this.column = column;
     this.row = row;
-    this.lives = 2;
+    this.lives = 1;
     this.alive = true;
     this.depth = 0;
     this.air = 100;

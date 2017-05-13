@@ -47,8 +47,6 @@ function preload_Resouces(callback) {
 
         {src: "image/character.png", id: "character"},
         {src: "image/character_attack.png", id: "character_attack"},
-        {src: "image/character1.png", id: "character1"},
-        {src: "image/character1_attack.png", id: "character1_attack"},
         {src: "image/character2.png", id: "character2"},
         {src: "image/character2_attack.png", id: "character2_attack"},
         {src: "image/character3.png", id: "character3"},

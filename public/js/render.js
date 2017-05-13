@@ -16,8 +16,8 @@ function loadDrillerSprite() {
     var image_res = [
         [resources.getResult("drill"), resources.getResult("walk")],
         [resources.getResult("character_attack"), resources.getResult("character")],
-        [resources.getResult("character1_attack"), resources.getResult("character1")],
-        [resources.getResult("character2_attack"), resources.getResult("character2")]
+        [resources.getResult("character2_attack"), resources.getResult("character2")],
+        [resources.getResult("character3_attack"), resources.getResult("character3")]
     ];
 
     function generateSpriteData(_images) {
@@ -65,9 +65,9 @@ function loadDrillerSprite() {
 
     drillerSprite = {
         "norm" : drillerSpriteSheet,
-        "1" : character1Sprite,
-        "2" : character2Sprite,
-        "3" : character3Sprite
+        "brown" : character1Sprite,
+        "blue" : character2Sprite,
+        "yellow" : character3Sprite
     };
 }
 
@@ -340,19 +340,19 @@ function drawCharacterSelect(){
 
     var blueCharImg = resources.getResult("blueChar");
     addBitmapButton(blueCharImg, 10, 300, 133, 149, function(){
-        mainCharacter = "1";
+        mainCharacter = "blue";
         switchState("selected", null);
     });
 
     var yellowCharImg = resources.getResult("yellowChar");
     addBitmapButton(yellowCharImg, 220, 300, 133, 149, function(){
-        mainCharacter = "2";
+        mainCharacter = "yellow";
         switchState("selected", null);
     });
 
     var brownCharImg = resources.getResult("brownChar");
     addBitmapButton(brownCharImg, 420, 300, 133, 149, function(){
-        mainCharacter = "3";
+        mainCharacter = "brown";
         switchState("selected", null);
     });
     stage.update();
