@@ -18,7 +18,7 @@ var numRows = 15;
 // The number of columns of blocks (x width)
 var numColumns = 7;
 
-var mainCharacter = 1;
+var mainCharacter = "norm";
 
 // variables so keycodes are more transparent
 var downarrow = 40;
@@ -38,6 +38,7 @@ var worldWidth = 420;
 
 var score = 0;
 var driller;
+var enemy;
 var drillerSpriteSheet;
 
 var canvas = document.getElementById("myCanvas");
@@ -49,6 +50,7 @@ var stage;
 
 // Socket.io
 var socket;
+var currentRoomKey;
 
 // A 2D array of blocks. Block at pos (0,0) is one below canvas display on
 // left side. This is like cartesian plane coordinates
@@ -184,8 +186,11 @@ function bindSocketListener(pray) {
         if (currentState == "createRoom"
             || currentState == "joinRoom"){
             switchState("didJoin", null);
+            currentRoomKey = both.key;
+            console.log(currentRoomKey);
         }
         else if (currentState == "multiPlayer") {
+            enemy = both.eve.adam;
             blocks = both.adam.blocks;
             duelBlocks = both.eve.blocks;
             eden = both.adam;
@@ -224,6 +229,11 @@ function bindSocketListener(pray) {
         console.log("[Socket.io] on: noob");
         driller.air -= 10;
     });
+
+    pray.on('triumph', ()=> {
+        console.log("[Socket.io] on: triumph");
+        switchState("gameWin",null);
+    })
 }
 
 function setUpWorld() {
@@ -238,8 +248,14 @@ function joinRoom() {
 
 function gameOver() {
     window.inGame = false;
-    drawGameOver();
+    //drawGameOver();
     socket.emit('apocalypse');
+}
+
+function gameOverMutli() {
+    window.inGame = false;
+    //drawGameOver();
+    socket.emit('someone_lose',currentRoomKey);
 }
 
 function restartGame() {
@@ -265,8 +281,8 @@ function gravity() {
              //essentially this is the function from depth to
              //difficulty, since durable blocks make it harder
              Math.pow(driller.depth / 100, 2) /
-             (5 * Math.pow((driller.depth + 300) / 100, 2)));
-             driller.depth += 5;*/
+             (5 * Math.pow((driller.depth + 300) / 100, 2)));*/
+             driller.depth += 5;
             if (window.blocks[driller.column][driller.row].type === "air") {
                 console.log("air2");
                 driller.airPocket();
@@ -424,7 +440,7 @@ function Driller(column, row) {
             pos = [this.column, this.row - 1];
 
         // drilling animation
-        drillerSpriteSheet.gotoAndPlay("drill");
+        drillerSprite[mainCharacter].gotoAndPlay("drill");
 
         // Check that block is within the bounds of the grid,
         // and disable player from drilling blocks that are currently falling
@@ -461,17 +477,17 @@ function onKeyDown(event) {
 
         if (keycode === leftarrow) {
             dx--;
-            drillerSpriteSheet.gotoAndPlay("walk");
+            drillerSprite[mainCharacter].gotoAndPlay("walk");
             if (isRight) {
-                drillerSpriteSheet.scaleX = -1 * drillerSpriteSheet.scaleX;
+                drillerSprite[mainCharacter].scaleX = -1 * drillerSprite[mainCharacter].scaleX;
                 isRight = false;
             }
         }
         else if (keycode === rightarrow) {
             dx++;
-            drillerSpriteSheet.gotoAndPlay("walk");
+            drillerSprite[mainCharacter].gotoAndPlay("walk");
             if (!isRight) {
-                drillerSpriteSheet.scaleX = -1 * drillerSpriteSheet.scaleX;
+                drillerSprite[mainCharacter].scaleX = -1 * drillerSprite[mainCharacter].scaleX;
                 isRight = true;
             }
         }
@@ -487,7 +503,19 @@ function onKeyDown(event) {
         // Drilling stuff
         if (keycode === spacebar) {
             driller.drill();
+        }
+    }
 
+    else if (currentState == "storyBackground"){
+        if (keycode === spacebar) {
+            switchState("start", null);
+        }
+    }
+
+    else if (currentState == "joinRoom") {
+        // Restart
+        if (keycode === 88) {
+            switchState("cancel");
         }
     }
 

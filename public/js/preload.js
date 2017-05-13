@@ -22,7 +22,9 @@ function preload_Resouces(callback) {
         {src: "image/fail2.jpg", id: "fail2"},
         {src: "image/selectPage.jpg", id: "selectPage"},
         {src: "image/storyBackground.jpg", id: "storyBackground"},
-        {src: "image/instruction2.jpg", id: "instruction2.jpg"},
+        {src: "image/instruction2.jpg", id: "instruction2"},
+        {src: "image/winPlay.jpg", id: "winPlay"},
+        {src: "image/losePlay.jpg", id: "losePlay"},
 
         //buttons
         {src: "image/home.png", id: "home"},

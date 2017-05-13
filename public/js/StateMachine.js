@@ -49,7 +49,7 @@ var stateModel = {
                 },
                 {
                     "event" : "multi",
-                    "target" : "joinRoom"
+                    "target" : "characterSelect"
                 }
             ],
             onEntry : function(event){
@@ -93,7 +93,21 @@ var stateModel = {
             ],
             onEntry : function(event){
                 console.log("Game State: singlePlayer");
+                mainCharacter = "norm";
                 setUpWorld();
+            }
+        },
+        {
+            "id" : "characterSelect",
+            "transitions" : [
+                {
+                    "event" : "selected",
+                    "target" : "joinRoom"
+                }
+            ],
+            onEntry : function(event){
+                console.log("Game State: characterSelect");
+                drawCharacterSelect();
             }
         },
         {
@@ -102,10 +116,15 @@ var stateModel = {
                 {
                     "event" : "didJoin",
                     "target" : "multiPlayer"
+                },
+                {
+                    "event" : "cancel",
+                    "target" : "menu"
                 }
             ],
             onEntry : function(event){
                 console.log("Game State: joinRoom");
+                drawWaitingForPlayer();
                 joinRoom();
             }
         },
@@ -115,6 +134,10 @@ var stateModel = {
                 {
                     "event" : "gameOver",
                     "target" : "mutliGameOver"
+                },
+                {
+                    "event" : "gameWin",
+                    "target" : "mutliGameWin"
                 }
             ],
             onEntry : function(event){
@@ -147,15 +170,25 @@ var stateModel = {
                 {
                     "event" : "homePress",
                     "target" : "menu"
-                },
-                {
-                    "event" : "gameRestart",
-                    "target" : "singlePlayer"
                 }
             ],
             onEntry : function(event){
-                console.log("Game State: singleGameOver");
-                drawEndGameOne();
+                console.log("Game State: mutliGameOver");
+                gameOverMutli();
+                drawEndGameLose();
+            }
+        },
+        {
+            "id" : "mutliGameWin",
+            "transitions" : [
+                {
+                    "event" : "homePress",
+                    "target" : "menu"
+                }
+            ],
+            onEntry : function(event){
+                console.log("Game State: mutliGameWin");
+                drawEndGameWin();
             }
         }
 

@@ -7,9 +7,11 @@
 
 ///////// graphics and drawing stuff /////////
 ////////  dedicated rendering functions
-var character1Sprite, character2Sprite, character3Sprite;
+
+var drillerSprite;
 
 function loadDrillerSprite() {
+    var character1Sprite, character2Sprite, character3Sprite;
 
     var image_res = [
         [resources.getResult("drill"), resources.getResult("walk")],
@@ -60,12 +62,19 @@ function loadDrillerSprite() {
     character3Sprite.gotoAndPlay("stand");
     character3Sprite.scaleX = 50 / 300;
     character3Sprite.scaleY = 50 / 300;
+
+    drillerSprite = {
+        "norm" : drillerSpriteSheet,
+        "1" : character1Sprite,
+        "2" : character2Sprite,
+        "3" : character3Sprite
+    };
 }
 
 function drawDriller() {
     //Mr.Driller's animation
-    drillerSpriteSheet.x = driller.column * 60 + 30;
-    drillerSpriteSheet.y = canvas.height - driller.row * 60;
+    drillerSprite[mainCharacter].x = driller.column * 60 + 30;
+    drillerSprite[mainCharacter].y = canvas.height - driller.row * 60;
 
     // Draw Mr. Driller's drill
     var drillOffset = 10;
@@ -123,7 +132,14 @@ function drawDriller() {
         stage.addChild(line);
     }
 
-    stage.addChild(drillerSpriteSheet);
+    stage.addChild(drillerSprite[mainCharacter]);
+}
+
+function drawEnemyDriller(){
+    drillerSprite["norm"].x = enemy.column * 60 + 30 + 600;
+    drillerSprite["norm"].y = canvas.height - enemy.row * 60;
+
+    stage.addChild(drillerSprite["norm"]);
 }
 
 function drawScoreboard(width, height) {
@@ -252,6 +268,7 @@ function drawMultiModeDisplay(){
     drawBlocks(blocks,1);
     drawBlocks(duelBlocks,2);
     drawDriller();
+    drawEnemyDriller();
 }
 
 function resizeCanvas(mode) {
@@ -281,6 +298,34 @@ function drawEndGameOne(){
     stage.update();
 }
 
+function drawEndGameLose(){
+    resizeCanvas(1);
+
+    var bgImg = resources.getResult("losePlay");
+    addBitmap(bgImg, 0, 0, canvas.width, canvas.height);
+
+    var homeBtnImg = resources.getResult("home");
+    addBitmapButton(homeBtnImg, 30, 500, 75, 75, function(){
+        switchState("homePress", null);
+    });
+
+    stage.update();
+}
+
+function drawEndGameWin(){
+    resizeCanvas(1);
+
+    var bgImg = resources.getResult("winPlay");
+    addBitmap(bgImg, 0, 0, canvas.width, canvas.height);
+
+    var homeBtnImg = resources.getResult("home");
+    addBitmapButton(homeBtnImg, 30, 500, 75, 75, function(){
+        switchState("homePress", null);
+    });
+
+    stage.update();
+}
+
 function drawCharacterSelect(){
     // 10 150, 220 150, 420 150
     // yellow character 3
@@ -295,20 +340,20 @@ function drawCharacterSelect(){
 
     var blueCharImg = resources.getResult("blueChar");
     addBitmapButton(blueCharImg, 10, 300, 133, 149, function(){
-        mainCharacter = 1;
-        //switchState("homePress", null);
+        mainCharacter = "1";
+        switchState("selected", null);
     });
 
     var yellowCharImg = resources.getResult("yellowChar");
     addBitmapButton(yellowCharImg, 220, 300, 133, 149, function(){
-        mainCharacter = 2;
-        //switchState("homePress", null);
+        mainCharacter = "2";
+        switchState("selected", null);
     });
 
     var brownCharImg = resources.getResult("brownChar");
     addBitmapButton(brownCharImg, 420, 300, 133, 149, function(){
-        mainCharacter = 3;
-        //switchState("gameRestart", null);
+        mainCharacter = "3";
+        switchState("selected", null);
     });
     stage.update();
 }
@@ -318,6 +363,12 @@ function drawInstruction(){
 
     var intro = resources.getResult("instruction2");
     addBitmap(intro, 0, 0, canvas.width, canvas.height);
+
+    var homeBtnImg = resources.getResult("home");
+    addBitmapButton(homeBtnImg, 30, 30, 75, 75, function(){
+        switchState("back", null);
+    });
+
     stage.update();
 }
 
@@ -326,6 +377,15 @@ function drawStoryBackground(){
 
     var intro = resources.getResult("storyBackground");
     addBitmap(intro, 0, 0, canvas.width, canvas.height);
+
+    stage.update();
+}
+
+function drawWaitingForPlayer(){
+    drawRectangle("rgba(0,0,0,.5)", 0, 0, canvas.width, canvas.height);
+
+    drawText("Waiting for Player...", "60px Arial", "white", canvas.width / 2, canvas.height / 2, "center");
+    drawText("Press X to Cancel", "40px Arial", "white", canvas.width / 2, canvas.height / 2 + 70, "center");
     stage.update();
 }
 
