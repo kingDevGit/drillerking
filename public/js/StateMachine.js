@@ -40,21 +40,47 @@ var stateModel = {
             "id" : "menu",
             "transitions" : [
                 {
+                    "event" : "goIns",
+                    "target" : "instruction"
+                },
+                {
                     "event" : "single",
-                    "target" : "singlePlayer"
+                    "target" : "storyBackground"
                 },
                 {
-                    "event" : "create",
-                    "target" : "createRoom"
-                },
-                {
-                    "event" : "join",
+                    "event" : "multi",
                     "target" : "joinRoom"
                 }
             ],
             onEntry : function(event){
                 console.log("Game State: menu");
                 drawMenu();
+            }
+        },
+        {
+            "id" : "instruction",
+            "transitions" : [
+                {
+                    "event" : "back",
+                    "target" : "menu"
+                }
+            ],
+            onEntry : function(event){
+                console.log("Game State: instruction");
+                drawInstruction();
+            }
+        },
+        {
+            "id" : "storyBackground",
+            "transitions" : [
+                {
+                    "event" : "start",
+                    "target" : "singlePlayer"
+                }
+            ],
+            onEntry : function(event){
+                console.log("Game State: storyBackground");
+                drawStoryBackground();
             }
         },
         {
@@ -68,19 +94,6 @@ var stateModel = {
             onEntry : function(event){
                 console.log("Game State: singlePlayer");
                 setUpWorld();
-            }
-        },
-        {
-            "id" : "createRoom",
-            "transitions" : [
-                {
-                    "event" : "didJoin",
-                    "target" : "multiPlayer"
-                }
-            ],
-            onEntry : function(event){
-                console.log("Game State: createRoom");
-                createRoom();
             }
         },
         {

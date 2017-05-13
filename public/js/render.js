@@ -194,7 +194,7 @@ function drawBackground() {
     addBitmap(bgImg, 0, 0, canvas.width, canvas.height);
 }
 
-function drawMenu() {
+function drawMenuOld() {
     resizeCanvas(1);
 
     var bgImg = resources.getResult("bg0");
@@ -210,6 +210,30 @@ function drawMenu() {
 
     addButton("Join Room", 300, 400, "green", function () {
         switchState("join", null);
+    });
+
+    stage.update();
+}
+
+function drawMenu() {
+    resizeCanvas(1);
+
+    var bgImg = resources.getResult("bg0");
+    addBitmap(bgImg, 0, 0, canvas.width, canvas.height);
+
+    var btn1 = resources.getResult("insTxt");
+    addBitmapButton(btn1, 10, 300, 133, 149, function(){
+        switchState("goIns", null);
+    });
+
+    var btn2 = resources.getResult("storyTxt");
+    addBitmapButton(btn2, 220, 300, 133, 149, function(){
+        switchState("single", null);
+    });
+
+    var btn3 = resources.getResult("battleTxt");
+    addBitmapButton(btn3, 420, 300, 133, 149, function(){
+        switchState("multi", null);
     });
 
     stage.update();

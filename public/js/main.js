@@ -85,7 +85,7 @@ function main() {
 
 function init() {
     // socket.io
-    socket = io('http://localhost:5000');
+    socket = io();
     bindSocketListener(socket);
 
     // adding listeners to control driller
@@ -231,14 +231,9 @@ function setUpWorld() {
     socket.emit('genesis', null);
 }
 
-function createRoom() {
-    console.log("createRoom");
-    socket.emit('lonely', null);
-}
-
 function joinRoom() {
     console.log("joinRoom");
-    socket.emit('women', 'testkey');
+    socket.emit('lonely', null);
 }
 
 function gameOver() {
