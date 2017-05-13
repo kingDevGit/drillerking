@@ -33,8 +33,8 @@ server.on('connection', (socket) => {
     socket.emit('handshake', sid);
 
     socket.on('disconnect', () => {
-        universe[sid] = null;
-        console.log('[disconnect]', sid);
+        // universe[sid] = null;
+        // console.log('[disconnect]', sid);
 
     });
     //Create multi-player room
@@ -133,9 +133,6 @@ server.on('connection', (socket) => {
 
 //Receive the pray
     socket.on('pray', (msg) => {
-
-        console.log("Received Pray")
-
         universe[sid].hearPray(msg);
     })
 
@@ -173,10 +170,6 @@ server.on('connection', (socket) => {
 
             socket.broadcast.to(adam).emit('triumph')
         }
-
-
-
-
     })
 
 });
@@ -197,6 +190,9 @@ function multiPlay(socket, roomKey) {
         eve: universe[adam],
         key: roomKey
     }
+
+
+   // console.log("Depth",player1.adam.adam.depth,player2.adam.adam.depth)
 
     socket.emit('parallel', player2)
     socket.broadcast.to(adam).emit('parallel', player1)
@@ -264,7 +260,7 @@ function world(sid) {
 
     this.addEmptyBlocks = function (depth) {
         for (let d = 0; d < depth; d++) {
-            for (let x = 0; x < cols; x++) {
+            for (var x = 0; x < cols; x++) {
                 // pushes a new item onto the beginning of the array
                 this.blocks[x].unshift(new Block("empty"));
             }
@@ -295,15 +291,14 @@ function world(sid) {
             this.blocks[driller.column][driller.row - 1].type === "air") {
             console.log("Should Fall")
             if (driller.countdown === 0) {
-                console.log("Fuckking add blocks")
                 this.addBottomBlocks(1, .015,
-
-
                     //this argument is the probability of a durable block
                     //essentially this is the function from depth to
                     //difficulty, since durable blocks make it harder
                     Math.pow(driller.depth / 100, 2) /
                     (5 * Math.pow((driller.depth + 300) / 100, 2)));
+
+
                 driller.depth += 5;
                 if (this.blocks[driller.column][driller.row].type === "air") {
 
@@ -317,6 +312,7 @@ function world(sid) {
 
         let fallObj = Blocks.blockGravity(this.blocks);
         this.blocks = fallObj.blockGrid;
+        //this.adam = driller;
 
     }
 
@@ -354,12 +350,10 @@ function world(sid) {
 
             for (let j = 0; j < rows; j++) {
                 if (this.blocks[i][j] == null) {
-                    console.log("Found null")
                 }
             }
         }
 
-        console.log("Finish Fill Empty")
     }
 
 
@@ -431,4 +425,7 @@ let randomKey = () => {
 }
 
 
-serv.listen(process.env.PORT || 5000);
+serv.listen(process.env.PORT || 5000,()=>{
+
+    console.log("Listening ")
+});
