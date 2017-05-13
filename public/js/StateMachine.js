@@ -31,6 +31,7 @@ var stateModel = {
             ],
             onEntry : function(event){
                 console.log("Game State: intro");
+                //drawCharacterSelect();
                 drawIntroScreen();
                 loadDrillerSprite();
             }
@@ -61,13 +62,11 @@ var stateModel = {
             "transitions" : [
                 {
                     "event" : "gameOver",
-                    "target" : "GameOver"
+                    "target" : "singleGameOver"
                 }
             ],
             onEntry : function(event){
                 console.log("Game State: singlePlayer");
-                mode = 2;
-                resizeCanvas();
                 setUpWorld();
             }
         },
@@ -102,28 +101,50 @@ var stateModel = {
             "transitions" : [
                 {
                     "event" : "gameOver",
-                    "target" : "GameOver"
+                    "target" : "mutliGameOver"
                 }
             ],
             onEntry : function(event){
                 console.log("Game State: multiPlayer");
-                mode = 2;
-                resizeCanvas();
+                resizeCanvas(2);
                 driller = new Driller(3, 5);
             }
         },
         {
-            "id" : "GameOver",
+            "id" : "singleGameOver",
             "transitions" : [
                 {
-                    "event" : "mousedown",
-                    "target" : "GameOver",
+                    "event" : "homePress",
+                    "target" : "menu"
+                },
+                {
+                    "event" : "gameRestart",
+                    "target" : "singlePlayer"
                 }
             ],
             onEntry : function(event){
-                console.log("Game State: GameOver");
+                console.log("Game State: singleGameOver");
                 gameOver();
+                drawEndGameOne();
+            }
+        },
+        {
+            "id" : "mutliGameOver",
+            "transitions" : [
+                {
+                    "event" : "homePress",
+                    "target" : "menu"
+                },
+                {
+                    "event" : "gameRestart",
+                    "target" : "singlePlayer"
+                }
+            ],
+            onEntry : function(event){
+                console.log("Game State: singleGameOver");
+                drawEndGameOne();
             }
         }
+
     ]
 };

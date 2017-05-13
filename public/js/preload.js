@@ -19,6 +19,22 @@ function preload_Resouces(callback) {
         //Background
         {src: "image/cover.jpg", id: "intro"},
         {src: "image/bg0.jpg", id: "bg0"},
+        {src: "image/fail2.jpg", id: "fail2"},
+        {src: "image/selectPage.jpg", id: "selectPage"},
+        {src: "image/storyBackground.jpg", id: "storyBackground"},
+        {src: "image/instruction2.jpg", id: "instruction2.jpg"},
+
+        //buttons
+        {src: "image/home.png", id: "home"},
+        {src: "image/restart.png", id: "restart"},
+
+        {src: "image/insTxt.png", id: "insTxt"},
+        {src: "image/storyTxt.png", id: "storyTxt"},
+        {src: "image/battleTxt.png", id: "battleTxt"},
+
+        {src: "image/brownChar.png", id: "brownChar"},
+        {src: "image/yellowChar.png", id: "yellowChar"},
+        {src: "image/blueChar.png", id: "blueChar"},
 
         //Menu
         //{src: "image/menu.jpg", id: "menu"},
@@ -27,14 +43,14 @@ function preload_Resouces(callback) {
         {src: "image/drill.png", id: "drill"},
         {src: "image/walk.png", id: "walk"},
 
-        /*{src: "image/character.png", id: "character"},
+        {src: "image/character.png", id: "character"},
         {src: "image/character_attack.png", id: "character_attack"},
         {src: "image/character1.png", id: "character1"},
         {src: "image/character1_attack.png", id: "character1_attack"},
         {src: "image/character2.png", id: "character2"},
         {src: "image/character2_attack.png", id: "character2_attack"},
         {src: "image/character3.png", id: "character3"},
-        {src: "image/character3_attack.png", id: "character3_attack"},*/
+        {src: "image/character3_attack.png", id: "character3_attack"},
 
         //Props
         {src: "image/chickenleg.png", id: "chickenleg"}

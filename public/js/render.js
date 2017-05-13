@@ -7,27 +7,59 @@
 
 ///////// graphics and drawing stuff /////////
 ////////  dedicated rendering functions
+var character1Sprite, character2Sprite, character3Sprite;
 
 function loadDrillerSprite() {
-    var data = {
-        images: [resources.getResult("drill"), resources.getResult("walk")],
-        frames: {width: 300, height: 300, regX: 150},
-        animations: {
-            stand: 2,
-            drill: {
-                frames: [3, 5],
-                next: false,
-                speed: 0.5
+
+    var image_res = [
+        [resources.getResult("drill"), resources.getResult("walk")],
+        [resources.getResult("character_attack"), resources.getResult("character")],
+        [resources.getResult("character1_attack"), resources.getResult("character1")],
+        [resources.getResult("character2_attack"), resources.getResult("character2")]
+    ];
+
+    function generateSpriteData(_images) {
+        var data = {
+            images: _images,
+            frames: {width: 300, height: 300, regX: 150},
+            animations: {
+                stand: 2,
+                drill: {
+                    frames: [3, 5],
+                    next: false,
+                    speed: 0.5
+                },
+                walk: [6, 9, "stand", 0.5],
             },
-            walk: [6, 9, "stand", 0.5],
-        },
-        framerate: 5
-    };
-    var spriteSheet = new createjs.SpriteSheet(data);
+            framerate: 5
+        };
+        return new createjs.SpriteSheet(data);
+    }
+
+
+    var spriteSheet = generateSpriteData(image_res[0]);
     drillerSpriteSheet = new createjs.Sprite(spriteSheet, "stand");
     drillerSpriteSheet.gotoAndPlay("stand");
     drillerSpriteSheet.scaleX = 50 / 300;
     drillerSpriteSheet.scaleY = 50 / 300;
+
+    var sprite1Sheet = generateSpriteData(image_res[1]);
+    character1Sprite = new createjs.Sprite(sprite1Sheet, "stand");
+    character1Sprite.gotoAndPlay("stand");
+    character1Sprite.scaleX = 50 / 300;
+    character1Sprite.scaleY = 50 / 300;
+
+    var sprite2Sheet = generateSpriteData(image_res[2]);
+    character2Sprite = new createjs.Sprite(sprite2Sheet, "stand");
+    character2Sprite.gotoAndPlay("stand");
+    character2Sprite.scaleX = 50 / 300;
+    character2Sprite.scaleY = 50 / 300;
+
+    var sprite3Sheet = generateSpriteData(image_res[3]);
+    character3Sprite = new createjs.Sprite(sprite3Sheet, "stand");
+    character3Sprite.gotoAndPlay("stand");
+    character3Sprite.scaleX = 50 / 300;
+    character3Sprite.scaleY = 50 / 300;
 }
 
 function drawDriller() {
@@ -150,8 +182,7 @@ function drawGameOver() {
 }
 
 function drawIntroScreen() {
-    mode = 1;
-    resizeCanvas();
+    resizeCanvas(1);
 
     var intro = resources.getResult("intro");
     addBitmap(intro, 0, 0, canvas.width, canvas.height);
@@ -164,8 +195,7 @@ function drawBackground() {
 }
 
 function drawMenu() {
-    mode = 1;
-    resizeCanvas();
+    resizeCanvas(1);
 
     var bgImg = resources.getResult("bg0");
     addBitmap(bgImg, 0, 0, canvas.width, canvas.height);
@@ -188,7 +218,7 @@ function drawMenu() {
 function drawSingleModeDisplay() {
     drawBackground();
     drawScoreboard(600 - worldWidth, canvas.height);
-    drawBlocks(blocks,2);
+    drawBlocks(blocks,1);
     drawDriller();
 }
 
@@ -200,13 +230,79 @@ function drawMultiModeDisplay(){
     drawDriller();
 }
 
-function resizeCanvas() {
+function resizeCanvas(mode) {
     if (mode == 1) {
         stage.canvas.width = 600;
     }
     else if (mode == 2) {
         stage.canvas.width = 600 + worldWidth;
     }
+}
+
+function drawEndGameOne(){
+    resizeCanvas(1);
+
+    var bgImg = resources.getResult("fail2");
+    addBitmap(bgImg, 0, 0, canvas.width, canvas.height);
+
+    var homeBtnImg = resources.getResult("home");
+    addBitmapButton(homeBtnImg, 30, 500, 75, 75, function(){
+        switchState("homePress", null);
+    });
+
+    var restartBtnImg = resources.getResult("restart");
+    addBitmapButton(restartBtnImg, 470, 500, 75, 75, function(){
+        switchState("gameRestart", null);
+    });
+    stage.update();
+}
+
+function drawCharacterSelect(){
+    // 10 150, 220 150, 420 150
+    // yellow character 3
+    // blue character 2
+    // brown character 1
+
+    resizeCanvas(1);
+
+    //background
+    var bgImg = resources.getResult("selectPage");
+    addBitmap(bgImg, 0, 0, canvas.width, canvas.height);
+
+    var blueCharImg = resources.getResult("blueChar");
+    addBitmapButton(blueCharImg, 10, 300, 133, 149, function(){
+        mainCharacter = 1;
+        //switchState("homePress", null);
+    });
+
+    var yellowCharImg = resources.getResult("yellowChar");
+    addBitmapButton(yellowCharImg, 220, 300, 133, 149, function(){
+        mainCharacter = 2;
+        //switchState("homePress", null);
+    });
+
+    var brownCharImg = resources.getResult("brownChar");
+    addBitmapButton(brownCharImg, 420, 300, 133, 149, function(){
+        mainCharacter = 3;
+        //switchState("gameRestart", null);
+    });
+    stage.update();
+}
+
+function drawInstruction(){
+    resizeCanvas(1);
+
+    var intro = resources.getResult("instruction2");
+    addBitmap(intro, 0, 0, canvas.width, canvas.height);
+    stage.update();
+}
+
+function drawStoryBackground(){
+    resizeCanvas(1);
+
+    var intro = resources.getResult("storyBackground");
+    addBitmap(intro, 0, 0, canvas.width, canvas.height);
+    stage.update();
 }
 
 ///////// Blocks related stuff ///////////
@@ -394,7 +490,6 @@ function addButton(text, x, y, txtcolor, keyDown) {
     label2.x = x;
     label2.y = y;
     label2.textAlign = "center";
-    label2.alpha = 0.5;
 
     // create a rectangle shape the same size as the text, and assign it as the hitArea
     // note that it is never added to the display list.
@@ -406,9 +501,9 @@ function addButton(text, x, y, txtcolor, keyDown) {
 
     label2.hitArea = hit;
 
-    label2.on("mouseover", buttonHandleInteraction);
-    label2.on("mouseout", buttonHandleInteraction);
-    label2.on("pressup", keyDown);
+    //label2.on("mouseover", buttonHandleInteraction);
+    //label2.on("mouseout", buttonHandleInteraction);
+    label2.on("click", keyDown);
 
     stage.addChild(label2);
 
@@ -417,3 +512,14 @@ function addButton(text, x, y, txtcolor, keyDown) {
     }
 }
 
+function addBitmapButton(img, x, y, width, height, keydown) {
+    var bitmap = new createjs.Bitmap(img);
+    bitmap.x = x;
+    bitmap.y = y;
+    bitmap.scaleX = width / img.width;
+    bitmap.scaleY = height / img.height;
+
+    bitmap.on("click",keydown);
+
+    stage.addChild(bitmap);
+}

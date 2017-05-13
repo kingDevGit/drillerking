@@ -14,7 +14,7 @@ Before you ask,
 2. Add state machine
     * SCION-CORE
 [link](https://github.com/jbeard4/SCION-CORE)
-. The flow of the game is using state machine to control. js/StateMachine.js
+. The flow of the game is using state machine to control. `js/StateMachine.js`
 
 3. Edit some code to become modular
 
@@ -24,7 +24,7 @@ Before you ask,
 4. Update keyboard listener
 
     State check for corresponding key down event.
-    
+
 ***
 
 ### **05-May-2017** By King

@@ -18,12 +18,17 @@ var numRows = 15;
 // The number of columns of blocks (x width)
 var numColumns = 7;
 
+var mainCharacter = 1;
+
 // variables so keycodes are more transparent
 var downarrow = 40;
 var uparrow = 38;
 var leftarrow = 37;
 var rightarrow = 39;
 var spacebar = 32;
+
+// w87 s83 a65 d68
+
 var rKey = 82;
 var isRight = true;
 
