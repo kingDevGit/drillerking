@@ -21,7 +21,7 @@ app.get('/', (request, response) => {
 
 
 let universe = [];
-let room = {};
+let room = [];
 let timers = [];
 const rows = 15,
     cols = 7;
@@ -39,16 +39,59 @@ server.on('connection', (socket) => {
     });
     //Create multi-player room
     socket.on('lonely', () => {
-        console.log('[Create Room]', sid)
-        //let key = randomKey();
-        let key = "testkey"
 
-        room[key] = {
-            adam: sid,
-            eve: null
+        let createRoom = function () {
+            console.log('[Create Room]', sid)
+            let key = room.length;
+            // let key = "testkey"
+
+            room.push({
+                adam: sid,
+                eve: null
+            })
+            console.log('[Room] Created', room[key], room.length)
+            socket.emit('lonely', key)
         }
-        console.log('[Room] Created', room[key])
-        socket.emit('lonely', key)
+
+        let joinRoom = function (key) {
+            if (room[key] && room[key].eve == null) {
+                room[key].eve = sid;
+
+
+                let adam = room[key].adam
+                let eve = room[key].eve
+
+                console.log('Adam', adam, 'Eve', eve)
+
+                universe[adam] = build(adam)
+                universe[eve] = build(eve)
+
+                timers[key] = setInterval(() => {
+                    multiPlay(socket, key)
+                }, 50)
+
+            }
+        }
+
+
+        //check room
+        if (room.length != 0) {
+            for (let i = 0; i < room.length; i++) {
+                if (room[i].eve == null) {
+
+                    return joinRoom(i);
+                }
+            }
+
+            createRoom();
+
+
+        } else {
+
+            createRoom();
+
+        }
+
 
     })
     //Enter a multi-player room
@@ -61,14 +104,14 @@ server.on('connection', (socket) => {
             let adam = room[key].adam
             let eve = room[key].eve
 
-            console.log('Adam', adam,'Eve',eve)
+            console.log('Adam', adam, 'Eve', eve)
 
             universe[adam] = build(adam)
             universe[eve] = build(eve)
 
-            timers[key] = setInterval(()=>{
-                multiPlay(socket,key)
-            },50)
+            timers[key] = setInterval(() => {
+                multiPlay(socket, key)
+            }, 50)
 
         }
 
@@ -116,23 +159,23 @@ server.on('connection', (socket) => {
 
 });
 
-function multiPlay(socket,roomKey){
+function multiPlay(socket, roomKey) {
 
     let adam = room[roomKey].adam
     let eve = room[roomKey].eve
 
     let player1 = {
-        adam:universe[adam],
-        eve:universe[eve]
+        adam: universe[adam],
+        eve: universe[eve]
     }
 
-    let player2={
-        adam:universe[eve],
-        eve:universe[adam]
+    let player2 = {
+        adam: universe[eve],
+        eve: universe[adam]
     }
 
-    socket.emit('parallel',player2)
-    socket.broadcast.to(adam).emit('parallel',player1)
+    socket.emit('parallel', player2)
+    socket.broadcast.to(adam).emit('parallel', player1)
 
 
 }
