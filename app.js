@@ -137,6 +137,7 @@ server.on('connection', (socket) => {
     })
 
     socket.on('drill', (msg) => {
+        console.log('Drill')
 
         universe[sid].drill(msg.toDrill, msg.pos, socket);
 
@@ -153,20 +154,18 @@ server.on('connection', (socket) => {
 
     })
 
-    socket.on('someone_lose', (roomkey) => {
-        clearInterval(timers[roomkey]);
+    socket.on('someone_lose', (roomKey) => {
+        clearInterval(timers[roomKey]);
         let adam = room[roomKey].adam
         let eve = room[roomKey].eve
 
 
-
-        if(id == adam.sid){
-
+        if (id == adam.sid) {
 
 
             socket.broadcast.to(eve).emit('triumph')
 
-        }else{
+        } else {
 
             socket.broadcast.to(adam).emit('triumph')
         }
@@ -192,7 +191,7 @@ function multiPlay(socket, roomKey) {
     }
 
 
-   // console.log("Depth",player1.adam.adam.depth,player2.adam.adam.depth)
+    // console.log("Depth",player1.adam.adam.depth,player2.adam.adam.depth)
 
     socket.emit('parallel', player2)
     socket.broadcast.to(adam).emit('parallel', player1)
@@ -279,7 +278,6 @@ function world(sid) {
         this.blocks = universe.blocks;
         this.adam = universe.adam;
         this.gravity();
-        console.log("Received Pray!", this.adam)
     }
 
 
@@ -289,7 +287,6 @@ function world(sid) {
         //check if the driller should fall
         if (this.blocks[driller.column][driller.row - 1].type === "empty" ||
             this.blocks[driller.column][driller.row - 1].type === "air") {
-            console.log("Should Fall")
             if (driller.countdown === 0) {
                 this.addBottomBlocks(1, .015,
                     //this argument is the probability of a durable block
@@ -425,7 +422,7 @@ let randomKey = () => {
 }
 
 
-serv.listen(process.env.PORT || 5000,()=>{
+serv.listen(process.env.PORT || 5000, () => {
 
     console.log("Listening ")
 });
