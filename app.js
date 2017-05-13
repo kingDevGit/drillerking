@@ -40,8 +40,8 @@ server.on('connection', (socket) => {
     //Create multi-player room
     socket.on('lonely', () => {
         console.log('[Create Room]', sid)
-        let key = randomKey();
-       // let key = "testkey"
+        //let key = randomKey();
+        let key = "testkey"
 
         room[key] = {
             adam: sid,

@@ -1,4 +1,5 @@
 <html>
+<body>
 <center>
 <canvas id="myCanvas" width="600" height="600"
         style="border:1px solid #000000;">
@@ -6,14 +7,19 @@
 </center>
 
 <!--//SocketIO-->
-<script src="socket.io.js"></script>
+<script src="lib/socket.io.js"></script>
 
 <!--//CreateJS-->
-<script src="easeljs-0.8.2.min.js"></script>
-<script src="preloadjs-0.6.2.min.js"></script>
+<script src="lib/easeljs-0.8.2.min.js"></script>
+<script src="lib/preloadjs-0.6.2.min.js"></script>
+<script src="lib/scion.js"></script>
 
 <!--//MainScript-->
-<script src="preload.js"></script>
-<script src="blocks.js"></script>
-<script src="main.js"></script>
+<script src="js/preload.js"></script>
+<script src="js/blocks.js"></script>
+<script src="js/render.js"></script>
+<script src="js/StateMachine.js"></script>
+<script src="js/main.js"></script>
+
+</body>
 </html>

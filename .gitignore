@@ -1,3 +1,6 @@
 node_modules/
 .DS_Store
-.idea/
+*.idea/
+public/*.idea
+*.DS_Store
+public/js/__backup.js
