@@ -238,17 +238,17 @@ function drawMenu() {
     addBitmap(bgImg, 0, 0, canvas.width, canvas.height);
 
     var btn1 = resources.getResult("insTxt");
-    addBitmapButton(btn1, 10, 300, 133, 149, function(){
+    addBitmapButton(btn1, 150, 120, 303, 62, function(){
         switchState("goIns", null);
     });
 
     var btn2 = resources.getResult("storyTxt");
-    addBitmapButton(btn2, 220, 300, 133, 149, function(){
+    addBitmapButton(btn2, 150, 270, 303, 62, function(){
         switchState("single", null);
     });
 
     var btn3 = resources.getResult("battleTxt");
-    addBitmapButton(btn3, 420, 300, 133, 149, function(){
+    addBitmapButton(btn3, 150, 420, 303, 62, function(){
         switchState("multi", null);
     });
 
@@ -282,9 +282,13 @@ function resizeCanvas(mode) {
 
 function drawEndGameOne(){
     resizeCanvas(1);
+    var canvasWidth = 600;
 
     var bgImg = resources.getResult("fail2");
     addBitmap(bgImg, 0, 0, canvas.width, canvas.height);
+
+    drawText("" + window.score, "50px Arial", "white",
+        canvasWidth/2, 150, "center");
 
     var homeBtnImg = resources.getResult("home");
     addBitmapButton(homeBtnImg, 30, 500, 75, 75, function(){

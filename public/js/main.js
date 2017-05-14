@@ -26,6 +26,10 @@ var uparrow = 38;
 var leftarrow = 37;
 var rightarrow = 39;
 var spacebar = 32;
+var wKey = 87;
+var sKey = 83;
+var aKey = 65;
+var dKey = 68;
 
 // w87 s83 a65 d68
 
@@ -63,6 +67,8 @@ for (var i = 0; i < numColumns; i++) {
 
 var handleEvent;
 var switchState;
+
+var mouseClickListener;
 
 var state;
 var mode;
@@ -238,6 +244,7 @@ function bindSocketListener(pray) {
 
 function setUpWorld() {
     driller = new Driller(3, 5);
+    mouseClickListener = stage.on("click", mouseClickHandler);
     socket.emit('genesis', null);
 }
 
@@ -250,12 +257,14 @@ function gameOver() {
     window.inGame = false;
     //drawGameOver();
     socket.emit('apocalypse');
+    stage.off("click", mouseClickListener);
 }
 
 function gameOverMutli() {
     window.inGame = false;
     //drawGameOver();
     socket.emit('someone_lose',currentRoomKey);
+    stage.off("click", mouseClickListener);
 }
 
 function restartGame() {
@@ -475,7 +484,7 @@ function onKeyDown(event) {
         var dx = 0;
         var dy = 0;
 
-        if (keycode === leftarrow) {
+        if (keycode === leftarrow || keycode === aKey) {
             dx--;
             drillerSprite[mainCharacter].gotoAndPlay("walk");
             if (isRight) {
@@ -483,7 +492,7 @@ function onKeyDown(event) {
                 isRight = false;
             }
         }
-        else if (keycode === rightarrow) {
+        else if (keycode === rightarrow || keycode === dKey) {
             dx++;
             drillerSprite[mainCharacter].gotoAndPlay("walk");
             if (!isRight) {
@@ -491,11 +500,10 @@ function onKeyDown(event) {
                 isRight = true;
             }
         }
-        else if (keycode === downarrow) dy--;
-        else if (keycode === uparrow) dy++;
+        else if (keycode === downarrow || keycode === sKey) dy--;
+        else if (keycode === uparrow || keycode === wKey) dy++;
 
         // Shouldn't be able to move up or down by keypresses.
-
         if (dx !== 0 || dy !== 0) {
             driller.move(dx, dy); // TODO: this is probably messed up
         }
@@ -526,6 +534,16 @@ function onKeyDown(event) {
         }
     }
 
+}
+
+function mouseClickHandler(evt, data) {
+    console.log("mouse clicked"); // true - scope defaults to the dispatcher
+    var currentState = state[0];
+
+    if (currentState == "singlePlayer"
+        || currentState == "multiPlayer") {
+        driller.drill();
+    }
 }
 
 /////////// MISC: focus       ////////////////
